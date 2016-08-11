@@ -110,7 +110,7 @@ void Timer_Init(){
     T1CONbits.TCS   = 0;            //Inner Clock use
     T1CONbits.TCKPS = 0;            //1:1 Prescale
     TMR1            = 0x0000;       //Clear contents of the timer register
-    PR1             = 0xaaaa;       //Load the Period register with the value 0xffff
+    PR1             = 0x7777;       //Load the Period register with the value 0xffff
     IPC0bits.T1IP   = 0x01;         //Setup Timer1 interrupt for desired priority level(1)
     IFS0bits.T1IF   = 0;            //Clear the Timer1 interrupt status flag
     IEC0bits.T1IE   = 1;            //Enable Timer1 Intrrupts
@@ -155,42 +155,82 @@ void Button_Check(){
 
 //Temperature Check
 void Temp_Check(){
-    const char loopValue = 100;
-    int loop;                               //Loop Variable
-    float temp, vout, rt, maxV, minV;           
-    float temp_array[loopValue];
-    
+    const char loopCountA = 12;
+    const char loopCountB = 12;
     const float RTDA = 3.9083 * pow(10,-3);
     const float RTDB = -5.775 * pow(10,-7);
     const float RTDC = -4.183 * pow(10,-12);
     
+    int loopA, loopB;                               //Loop Variable
+    float temp, vout, rt, maxV, minV, avgValue;           
+    float temp_arrayB[loopCountB];
+    float temp_arrayA[loopCountA];
+    
     //Channel Selection
     AD1CHS = 0x0001;
+    Delay_us(50);
     
-    temp = 0;
-    //loopValue?? ???? ????.
-    for(loop = 0 ; loop < loopValue ; loop++){
-        while(!AD1CON1bits.DONE);         
-        temp_array[loop]=ADC1BUF1;
-        temp += temp_array[loop];
-        Delay_us(50);
+    avgValue = 0;
+    for(loopA = 0 ; loopA < loopCountA ; loopA++){
+        temp = 0;
+        for(loopB = 0 ; loopB < loopCountB ; loopB++){
+            while(!AD1CON1bits.DONE);
+            temp_arrayB[loopB] = ADC1BUF1;
+            temp += temp_arrayB[loopB];
+            Delay_us(50);
+        }
+        
+        maxV = temp_arrayB[0];
+        minV = temp_arrayB[0];
+        for(loopB = 0; loopB < loopCountB ; loopB++){
+            if(maxV<temp_arrayB[loopB]) {
+                maxV = temp_arrayB[loopB];
+            }
+            if(minV>temp_arrayB[loopB]) {
+                minV = temp_arrayB[loopB];
+            }
+        }
+        //?? ? ??
+        temp_arrayA[loopA] = (temp-maxV-minV)/(loopCountB-2);
+        avgValue += temp_arrayA[loopA];
     }
     
-    //???? ???? ??
-    maxV = temp_array[0];
-    minV = temp_array[0];
-    for(loop = 0; loop < loopValue ; loop++){
-        if(maxV<temp_array[loop]) {
-            maxV = temp_array[loop];
+    maxV = temp_arrayA[0];
+    minV = temp_arrayA[0];
+    for(loopA = 0 ; loopA < loopCountA ; loopA++){
+        if(maxV<temp_arrayA[loopA]) {
+            maxV = temp_arrayA[loopA];
         }
-        if(minV>temp_array[loop]) {
-            minV = temp_array[loop];
+        if(minV>temp_arrayA[loopA]) {
+            minV = temp_arrayA[loopA];
         }
     }
+    avgValue = (avgValue-maxV-minV)/(loopCountA-2);
     
-    //?? ? ??
-    temp = (temp-maxV-minV)/(loopValue-2);
-    vout = (temp * UNIT)/GAIN;
+//    temp = 0;
+//    //loopValue?? ???? ????.
+//    for(loopB = 0 ; loopB < loopCountA ; loopB++){
+//        while(!AD1CON1bits.DONE);         
+//        temp_array[loopB]=ADC1BUF1;
+//        temp += temp_array[loopB];
+//        Delay_us(50);
+//    }
+//    
+//    //???? ???? ??
+//    maxV = temp_array[0];
+//    minV = temp_array[0];
+//    for(loopB = 0; loopB < loopCountA ; loopB++){
+//        if(maxV<temp_array[loopB]) {
+//            maxV = temp_array[loopB];
+//        }
+//        if(minV>temp_array[loopB]) {
+//            minV = temp_array[loopB];
+//        }
+//    }
+//    
+//    //?? ? ??
+//    temp = (temp-maxV-minV)/(loopCountA-2);
+    vout = (avgValue * UNIT)/GAIN;
     rt = vout/CURRENT;
     if(rt>=R0) {
         tmp_Value = Solve_second_Equation(R0*RTDB, R0*RTDA, R0-rt);
@@ -201,7 +241,7 @@ void Temp_Check(){
         tmp_Value = (int)(tmp_Value*10)%10000;
     }
     //tmp_Value = (int)((((rt/100)-1)/0.00385f)*10.0f)%10000;
-    Delay_ms(1000);
+    Delay_ms(400);
     
 }
 
