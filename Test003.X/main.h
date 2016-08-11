@@ -61,6 +61,7 @@
 
 #include <xc.h>
 #include <math.h>
+#include <stdio.h>
 
 #define FOSC        2000000                 //OSCILLATOR VALUE
 #define FCY         FOSC/2         
@@ -119,6 +120,7 @@ const int DOT = 0x7fff;
 const float UNIT = 3.3f/4096;           //Volt per Unit
 const float GAIN = 1+20000/3000;       //SENSOR GAIN
 const float CURRENT = 0.001f;
+const float R0 = 100;
 
 //Functions
 void Delay_us(unsigned char _dcnt);
@@ -133,5 +135,8 @@ void Temp_Check();
 //void FND_Display(int num);
 void Current_Check();
 void Current_Control();
+
+float Solve_second_Equation(float a, float b, float c);
+float Solve_Fourth_Equation(float a, float b, float c, float d, float e);
 
 #endif	/* MAIN_H */
