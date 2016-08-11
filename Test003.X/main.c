@@ -12,9 +12,17 @@ float tmp_Value;                            //Temperature Value
 
 void __attribute__((__interrupt__, __shadow__)) _T1Interrupt(void){
     int num = (int)tmp_Value;
+    int num2 = 0;
     
+    if(num < 0) {
+        num2 = num;
+        num = num * -1;
+    }
     if(num>=1000){
-        PORTB = fnd_character[num/1000] | FND_AP1;
+        if(num2 < 0)
+            PORTB = (fnd_character[num/1000] | FND_AP1) & DOT;
+        else
+            PORTB = fnd_character[num/1000] | FND_AP1;
         Delay_ms(5);
         PORTB = 0x00f0;
     }
@@ -239,8 +247,8 @@ void Temp_Check(){
     else {
         tmp_Value = Solve_Fourth_Equation(RTDC, -100*R0*RTDC, R0*RTDB, R0*RTDA, R0-rt);
         tmp_Value = (int)(tmp_Value*10)%10000;
+        //tmp_Value = (int)((((rt/100)-1)/0.00385f)*10.0f)%10000;
     }
-    //tmp_Value = (int)((((rt/100)-1)/0.00385f)*10.0f)%10000;
     Delay_ms(400);
     
 }
@@ -363,6 +371,7 @@ float Solve_Fourth_Equation(float a, float b, float c, float d, float e){
     if(res1 < 0) result = res1;
     else if (res2 < 0) result = res2;
     else if (res3 < 0) result = res3;
-    else result = res4;
+    else if (res4 < 0) result = res4;
+    else result = -999;
     return result;
 }
