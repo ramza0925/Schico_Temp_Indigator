@@ -13,17 +13,21 @@ float tmp_Value;                            //Temperature Value
 void __attribute__((__interrupt__, __shadow__)) _T1Interrupt(void){
     int num = (int)tmp_Value;
     
-    PORTB = fnd_character[num/1000] | FND_AP1;
-    Delay_ms(7);
-    PORTB = 0x00f0;
-    PORTB = fnd_character[(num%1000)/100] | FND_AP2;
-    Delay_ms(7);
-    PORTB = 0x00f0;
+    if(num>=1000){
+        PORTB = fnd_character[num/1000] | FND_AP1;
+        Delay_ms(5);
+        PORTB = 0x00f0;
+    }
+    if(num>=100){
+        PORTB = fnd_character[(num%1000)/100] | FND_AP2;
+        Delay_ms(5);
+        PORTB = 0x00f0;
+    }
     PORTB = (fnd_character[(num%100)/10] | FND_AP3) & DOT;
-    Delay_ms(7);
+    Delay_ms(5);
     PORTB = 0x00f0;
     PORTB = fnd_character[num%10] | FND_AP4;
-    Delay_ms(7);
+    Delay_ms(5);
     PORTB = 0x00f0;
     
     IFS0bits.T1IF = 0;              //Reset Timer1 interrupt flag and Return from ISR
@@ -169,7 +173,7 @@ void Temp_Check(){
         while(!AD1CON1bits.DONE);         
         temp_array[loop]=ADC1BUF1;
         temp += temp_array[loop];
-        Delay_us(10);
+        Delay_us(50);
     }
     
     //???? ???? ??
@@ -197,7 +201,7 @@ void Temp_Check(){
         tmp_Value = (int)(tmp_Value*10)%10000;
     }
     //tmp_Value = (int)((((rt/100)-1)/0.00385f)*10.0f)%10000;
-    Delay_ms(300);
+    Delay_ms(1000);
     
 }
 
