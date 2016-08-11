@@ -152,10 +152,14 @@ void Button_Check(){
 
 //Temperature Check
 void Temp_Check(){
-    const char loopValue = 50;
+    const char loopValue = 100;
     int loop;                               //Loop Variable
-    float temp, vout, rt, maxV, minV;           
+    float temp, vout, rt, maxV1, maxV2, minV1, minV2;           
     float temp_array[loopValue];
+    
+    const float RTDA = 3.9083 * pow(10,-3);
+    const float RTDB = -5.775 * pow(10,-7);
+    const float RTDC = -4.183 * pow(10,-12);
     
     //Channel Selection
     AD1CHS = 0x0001;
@@ -163,28 +167,42 @@ void Temp_Check(){
     temp = 0;
     //loopValue?? ???? ????.
     for(loop = 0 ; loop < loopValue ; loop++){
-        //TODO ? ???? ?? ? ?.
-        //while(!AD1CON1bits.DONE);         //? ??????????
+        while(!AD1CON1bits.DONE);         
         temp_array[loop]=ADC1BUF1;
         temp += temp_array[loop];
         Delay_us(5);
-        //AD1CON1bits.DONE = 0;
     }
     
     //???? ???? ??
-    maxV = temp_array[0];
-    minV = temp_array[0];
+    maxV1 = temp_array[0];
+    minV1 = temp_array[0];
+    maxV2 = temp_array[0];
+    minV2 = temp_array[0];
     for(loop = 0; loop < loopValue ; loop++){
-        if(maxV<temp_array[loop]) maxV = temp_array[loop];
-        if(minV>temp_array[loop]) minV = temp_array[loop];
+        if(maxV1<temp_array[loop]) {
+            maxV2 = maxV1;
+            maxV1 = temp_array[loop];
+        }
+        if(minV1>temp_array[loop]) {
+            minV2 = minV1;
+            minV1 = temp_array[loop];
+        }
     }
     
     //?? ? ??
-    temp = (temp-maxV-minV)/(loopValue-2);
+    temp = (temp-maxV1-maxV2-minV1-minV2)/(loopValue-4);
     vout = (temp * UNIT)/GAIN;
     rt = vout/CURRENT;
-    tmp_Value = (int)((((rt/100)-1)/0.00385f)*10.0f)%10000;
-    Delay_ms(200);
+    if(rt>=R0) {
+        tmp_Value = Solve_second_Equation(R0*RTDB, R0*RTDA, R0-rt);
+        tmp_Value = (int)(tmp_Value*10)%10000;
+    }
+    else {
+        tmp_Value = Solve_Fourth_Equation(RTDC, -100*R0*RTDC, R0*RTDB, R0*RTDA, R0-rt);
+        tmp_Value = (int)(tmp_Value*10)%10000;
+    }
+    //tmp_Value = (int)((((rt/100)-1)/0.00385f)*10.0f)%10000;
+    Delay_ms(100);
     
 }
 
@@ -198,18 +216,114 @@ void Current_Control(){
    //TODO
 }
 
-//FND Display
-//void FND_Display(int num){
-//    PORTB = fnd_character[num/1000] | FND_AP1;
-//    Delay_ms(1);
-//    PORTB = 0x00f0;
-//    PORTB = fnd_character[(num%1000)/100] | FND_AP2;
-//    Delay_ms(1);
-//    PORTB = 0x00f0;
-//    PORTB = (fnd_character[(num%100)/10] | FND_AP3) & DOT;
-//    Delay_ms(1);
-//    PORTB = 0x00f0;
-//    PORTB = fnd_character[num%10] | FND_AP4;
-//    Delay_ms(1);
-//    PORTB = 0x00f0; 
-//}
+float Solve_second_Equation(float a, float b, float c){
+    double d = b*b-4*a*c;
+    float result = 0;
+    if(d < 0) result = 9999;
+    else if(d == 0) result = (-b)/(2*a);
+    else{
+        result = (-b+sqrt(d))/(2*a); 
+        if(result < 0) result = (-b-sqrt(d))/(2*a);
+    }
+    return result;
+}
+
+float Solve_Fourth_Equation(float a, float b, float c, float d, float e){
+    
+    float result = 0;
+
+    
+    float res1 = 0;
+    float res2 = 0;
+    float res3 = 0;
+    float res4 = 0;
+    float y1 = 0;
+    float y2 = 0;
+    float y3 = 0;
+    float a0 = a/a;
+    float b0 = b/a;
+    float c0 = c/a;
+    float d0 = d/a;
+    float e0 = e/a;
+    float f0 = 0;
+    float g0 = 0;
+    float h0 = 0;
+    float a1 = 0;
+    float b1 = 0;
+    float c1 = 0;
+    float d1 = 0;
+    float f = 0;
+    float g = 0;
+    float h = 0;
+    float i = 0;
+    float j = 0;
+    float k = 0;
+    float l = 0;
+    float m = 0;
+    float n = 0;
+    float p = 0;
+    float q = 0;
+    float r = 0;
+    float s = 0;
+    float t = 0;
+    
+    float o = 0;
+    
+    o = (pow(d,2)*pow(c,2)*pow(b,2)-4*pow(d,3)*pow(b,3)-4*pow(d,2)*pow(c,3)*a+18*pow(d,3)*a*b*c-27*pow(d,4)*pow(a,2)+256*pow(e,3)*pow(a,3))
+		+e*(-4*pow(c,3)*pow(b,2)+18*d*c*pow(b,3)+16*pow(c,4)*a-80*pow(c,2)*d*b*a-6*pow(d,2)*pow(b,2)*a+144*pow(d,2)*pow(a,2)*c)+pow(e,2)*(-27*pow(b,4)
+        +144*pow(b,2)*c*a-128*pow(c,2)*pow(a,2)-192*pow(a,2)*d*b);
+    
+    if(o < 0) result = 9999;
+    else if(o >= 0){
+        f0 = c0-(3*pow(b0,2)/8);
+		g0 = d0+(pow(b0,3)/8)-(b0*c0/2);
+		h0 = e0-(3*pow(b0,4)/256)+(pow(b0,2)*c0/16)-(b0*d0/4);
+
+		a1 = 1;
+		b1 = f0/2;
+		c1 = (pow(f0,2)-4*h0)/16;
+		d1 = -pow(g0,2)/64;
+	
+		f = (((3*c1)/a1) - (pow(b1,2)/pow(a1,2)))/3;
+	    g = ((2*pow(b1,3)/pow(a1,3))-((9*b1*c1)/pow(a1,2))+(27*d1/a1)) / 27;
+	    h = (pow(g,2)/4)+(pow(f,3)/27);
+
+		
+		i = sqrt((pow(g,2)/4 - h)); 
+		j = pow(i,1/3);
+		k = acos(-(g/(2*i)));
+		l = j * (-1);
+		m = cos(k/3);
+		n = sqrt(3) * sin(k/3);
+		p = (b1/(3*a1))*(-1);
+
+		y1 = (2*j)*cos(k/3)-(b1/(3*a1));
+		y2 = l * (m + n) + p;
+		y3 = l * (m - n) + p;
+        
+        if((y1*y1 < y2*y2) && (y1*y1 < y3*y3)) {
+			//if(y2 < 0)
+            q = sqrt(y2);
+			r = sqrt(y3);
+		} else if((y2*y2 < y1*y1) && (y2*y2 < y3*y3)){
+			q = sqrt(y1);
+			r = sqrt(y3);
+		} else { 
+			q = sqrt(y1);
+			r = sqrt(y2);
+		}
+    }
+    
+    s = -g0/(8*q*r);
+	t = b0/(4*a0);
+
+	res1 = q+r+s-t;
+	res2 = q-r-s-t;
+	res3 = -q+r-s-t;
+	res4 = -q-r+s-t;
+    if(res1 < 0) result = res1;
+    else if (res2 < 0) result = res2;
+    else if (res3 < 0) result = res3;
+    else result = res4;
+    return result;
+}
