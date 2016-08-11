@@ -51,6 +51,10 @@ c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(addsf3.
                               build/default/production/main.o (___subsf3)
 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(divsf3.eo)
                               build/default/production/main.o (___divsf3)
+c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(feqltle.eo)
+                              build/default/production/main.o (___ltsf2)
+c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fgtge.eo)
+                              build/default/production/main.o (___gtsf2)
 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fixsfsi.eo)
                               build/default/production/main.o (_(float, int, long long, short, float, short, int))
 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatsisf.eo)
@@ -67,6 +71,8 @@ c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(futil.e
                               c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(addsf3.eo) (__fPropagateNaN)
 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(mulsf3.eo)
                               build/default/production/main.o (___mulsf3)
+c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fcompare.eo)
+                              c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(feqltle.eo) (__fcompare)
 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatdisf.eo)
                               c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatsisf.eo) (___floatdisf)
 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatundisf.eo)
@@ -101,12 +107,12 @@ Program Memory  [Origin = 0x200, Length = 0x5600]
 
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
-.text                        0x200               0x604           0x906  (2310)
-.const                       0x804                0x56            0x81  (129)
-.dinit                       0x85a                 0x8             0xc  (12)
-.shared.dinit                0x862                 0x2             0x3  (3)
+.text                        0x200               0x74a           0xaef  (2799)
+.const                       0x94a                0x56            0x81  (129)
+.dinit                       0x9a0                 0x8             0xc  (12)
+.shared.dinit                0x9a8                 0x2             0x3  (3)
 
-                 Total program memory used (bytes):          0x996  (2454) 7%
+                 Total program memory used (bytes):          0xb7f  (2943) 8%
 
 
 Ivt Memory  [Origin = 0x4, Length = 0xfc]
@@ -166,29 +172,35 @@ External Symbols in Program Memory (by address):
                   0x000416                  _ADC_Init
                   0x000462                  _Button_Check
                   0x000468                  _Temp_Check
-                  0x0004dc                  _Current_Check
-                  0x0004e2                  _Current_Control
-                  0x0004e8                  __DefaultInterrupt
-                  0x0004ec                  ___subsf3
-                  0x0004ee                  ___addsf3
-                  0x0005a8                  ___divsf3
-                  0x00062c                  ___fixsfsi
-                  0x00066e                  ___floatsisf
-                  0x000674                  ___floatunsisf
-                  0x000678                  __fpack
-                  0x0006c4                  __funpack
-                  0x0006ee                  __funpack2
-                  0x0006fe                  __fPropagateNaN
-                  0x000710                  __fbopExit
-                  0x000718                  __fbopReturnNaN
-                  0x00071e                  ___mulsf3
-                  0x000786                  ___floatdisf
-                  0x0007a6                  ___floatundisf
-                  0x000804                  _fnd_character
-                  0x00084c                  _DOT
-                  0x00084e                  _UNIT
-                  0x000852                  _GAIN
-                  0x000856                  _CURRENT
+                  0x0005e4                  _Current_Check
+                  0x0005ea                  _Current_Control
+                  0x0005f0                  __DefaultInterrupt
+                  0x0005f4                  ___subsf3
+                  0x0005f6                  ___addsf3
+                  0x0006b0                  ___divsf3
+                  0x000734                  ___ltsf2
+                  0x000734                  ___lesf2
+                  0x000734                  ___eqsf2
+                  0x000738                  ___gesf2
+                  0x000738                  ___gtsf2
+                  0x00073c                  ___fixsfsi
+                  0x00077e                  ___floatsisf
+                  0x000784                  ___floatunsisf
+                  0x000788                  __fpack
+                  0x0007d4                  __funpack
+                  0x0007fe                  __funpack2
+                  0x00080e                  __fPropagateNaN
+                  0x000820                  __fbopExit
+                  0x000828                  __fbopReturnNaN
+                  0x00082e                  ___mulsf3
+                  0x000896                  __fcompare
+                  0x0008cc                  ___floatdisf
+                  0x0008ec                  ___floatundisf
+                  0x00094a                  _fnd_character
+                  0x000992                  _DOT
+                  0x000994                  _UNIT
+                  0x000998                  _GAIN
+                  0x00099c                  _CURRENT
                   0xf80000                  __FBS.sec
                   0xf80004                  __FGS.sec
 
@@ -196,43 +208,49 @@ External Symbols in Program Memory (by name):
 
                   0x000416                  _ADC_Init
                   0x000462                  _Button_Check
-                  0x000856                  _CURRENT
-                  0x0004dc                  _Current_Check
-                  0x0004e2                  _Current_Control
-                  0x00084c                  _DOT
+                  0x00099c                  _CURRENT
+                  0x0005e4                  _Current_Check
+                  0x0005ea                  _Current_Control
+                  0x000992                  _DOT
                   0x00038c                  _Delay_ms
                   0x00037c                  _Delay_us
-                  0x000852                  _GAIN
+                  0x000998                  _GAIN
                   0x0003b0                  _Init
                   0x0003be                  _OSC_Init
                   0x0003da                  _Port_Init
                   0x000468                  _Temp_Check
                   0x0003ee                  _Timer_Init
-                  0x00084e                  _UNIT
-                  0x0004e8                  __DefaultInterrupt
+                  0x000994                  _UNIT
+                  0x0005f0                  __DefaultInterrupt
                   0xf80000                  __FBS.sec
                   0xf80004                  __FGS.sec
                   0x0002a8                  __T1Interrupt
-                  0x0004ee                  ___addsf3
-                  0x0005a8                  ___divsf3
-                  0x00062c                  ___fixsfsi
-                  0x000786                  ___floatdisf
-                  0x00066e                  ___floatsisf
-                  0x0007a6                  ___floatundisf
-                  0x000674                  ___floatunsisf
-                  0x00071e                  ___mulsf3
-                  0x0004ec                  ___subsf3
+                  0x0005f6                  ___addsf3
+                  0x0006b0                  ___divsf3
+                  0x000734                  ___eqsf2
+                  0x00073c                  ___fixsfsi
+                  0x0008cc                  ___floatdisf
+                  0x00077e                  ___floatsisf
+                  0x0008ec                  ___floatundisf
+                  0x000784                  ___floatunsisf
+                  0x000738                  ___gesf2
+                  0x000738                  ___gtsf2
+                  0x000734                  ___lesf2
+                  0x000734                  ___ltsf2
+                  0x00082e                  ___mulsf3
+                  0x0005f4                  ___subsf3
                   0x00023c                  __data_init
                   0x00023c                  __data_init_standard
-                  0x0006fe                  __fPropagateNaN
-                  0x000710                  __fbopExit
-                  0x000718                  __fbopReturnNaN
-                  0x000678                  __fpack
-                  0x0006c4                  __funpack
-                  0x0006ee                  __funpack2
+                  0x00080e                  __fPropagateNaN
+                  0x000820                  __fbopExit
+                  0x000828                  __fbopReturnNaN
+                  0x000896                  __fcompare
+                  0x000788                  __fpack
+                  0x0007d4                  __funpack
+                  0x0007fe                  __funpack2
                   0x00022c                  __psv_init
                   0x000200                  __resetPRI
-                  0x000804                  _fnd_character
+                  0x00094a                  _fnd_character
                   0x00036e                  _main
 
 Memory Configuration
@@ -283,7 +301,7 @@ LOAD c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libfx-elf.a
                   0x000002          0x2 SHORT 0x0 ((ABSOLUTE (__reset) >> 0x10) & 0x7f)
                   0x000003          0x2 SHORT 0x0
 
-.text             0x000200        0x604
+.text             0x000200        0x74a
  *(.init)
  .init            0x000200         0x3c c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\liblega-pic30-elf.a(crt0_standard.o)
                   0x000200                  __resetPRI
@@ -295,7 +313,7 @@ LOAD c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libfx-elf.a
  *(.user_init)
  *(.handle)
  *(.isr*)
- .isr.text        0x0002a8        0x240 build/default/production/main.o
+ .isr.text        0x0002a8        0x348 build/default/production/main.o
                   0x0002a8                  __T1Interrupt
                   0x00036e                  _main
                   0x00037c                  _Delay_us
@@ -307,51 +325,61 @@ LOAD c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libfx-elf.a
                   0x000416                  _ADC_Init
                   0x000462                  _Button_Check
                   0x000468                  _Temp_Check
-                  0x0004dc                  _Current_Check
-                  0x0004e2                  _Current_Control
- .isr             0x0004e8          0x4 default_isr
-                  0x0004e8                  __DefaultInterrupt
+                  0x0005e4                  _Current_Check
+                  0x0005ea                  _Current_Control
+ .isr             0x0005f0          0x4 default_isr
+                  0x0005f0                  __DefaultInterrupt
  *(.libc)
  *(.libm)
  *(.libdsp)
  *(.lib*)
- .libm.subsf3     0x0004ec         0xbc c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(addsf3.eo)
-                  0x0004ec                  ___subsf3
-                  0x0004ee                  ___addsf3
- .libm.divfs3     0x0005a8         0x84 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(divsf3.eo)
-                  0x0005a8                  ___divsf3
- .libm.fixsfsi    0x00062c         0x42 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fixsfsi.eo)
-                  0x00062c                  _(float, int, long long, short, float, short, int)
+ .libm.subsf3     0x0005f4         0xbc c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(addsf3.eo)
+                  0x0005f4                  ___subsf3
+                  0x0005f6                  ___addsf3
+ .libm.divfs3     0x0006b0         0x84 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(divsf3.eo)
+                  0x0006b0                  ___divsf3
+ .libm.eqsf2      0x000734          0x4 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(feqltle.eo)
+                  0x000734                  ___eqsf2
+                  0x000734                  ___ltsf2
+                  0x000734                  ___lesf2
+ .libm.gtsf2      0x000738          0x4 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fgtge.eo)
+                  0x000738                  ___gesf2
+                  0x000738                  ___gtsf2
+ .libm.fixsfsi    0x00073c         0x42 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fixsfsi.eo)
+                  0x00073c                  _(float, int, long long, short, float, short, int)
  .libm.floatsisf
-                  0x00066e          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatsisf.eo)
-                  0x00066e                  ___floatsisf
+                  0x00077e          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatsisf.eo)
+                  0x00077e                  ___floatsisf
  .libm.floatunsisf
-                  0x000674          0x4 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatunsisf.eo)
-                  0x000674                  ___floatunsisf
- .libm.fpack      0x000678         0x4c c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fpack.eo)
-                  0x000678                  __fpack
- .libm.funpack    0x0006c4         0x2a c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(funpack.eo)
-                  0x0006c4                  __funpack
+                  0x000784          0x4 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatunsisf.eo)
+                  0x000784                  ___floatunsisf
+ .libm.fpack      0x000788         0x4c c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fpack.eo)
+                  0x000788                  __fpack
+ .libm.funpack    0x0007d4         0x2a c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(funpack.eo)
+                  0x0007d4                  __funpack
  .libm.funpack2
-                  0x0006ee         0x10 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(funpack2.eo)
-                  0x0006ee                  __funpack2
+                  0x0007fe         0x10 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(funpack2.eo)
+                  0x0007fe                  __funpack2
  .libm.fPropagateNaN
-                  0x0006fe         0x12 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(futil.eo)
-                  0x0006fe                  __fPropagateNaN
+                  0x00080e         0x12 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(futil.eo)
+                  0x00080e                  __fPropagateNaN
  .libm.fbobExit
-                  0x000710          0x8 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(futil.eo)
-                  0x000710                  __fbopExit
+                  0x000820          0x8 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(futil.eo)
+                  0x000820                  __fbopExit
  .libm.fbopReturnNaN
-                  0x000718          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(futil.eo)
-                  0x000718                  __fbopReturnNaN
- .libm.mulsf3     0x00071e         0x68 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(mulsf3.eo)
-                  0x00071e                  ___mulsf3
+                  0x000828          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(futil.eo)
+                  0x000828                  __fbopReturnNaN
+ .libm.mulsf3     0x00082e         0x68 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(mulsf3.eo)
+                  0x00082e                  ___mulsf3
+ .libm.fcompare
+                  0x000896         0x36 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fcompare.eo)
+                  0x000896                  __fcompare
  .libm.floatdisf
-                  0x000786         0x20 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatdisf.eo)
-                  0x000786                  ___floatdisf
+                  0x0008cc         0x20 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatdisf.eo)
+                  0x0008cc                  ___floatdisf
  .libm.floatundisf
-                  0x0007a6         0x5e c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatundisf.eo)
-                  0x0007a6                  ___floatundisf
+                  0x0008ec         0x5e c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatundisf.eo)
+                  0x0008ec                  ___floatundisf
 
 usercode
  *(usercode)
@@ -387,22 +415,22 @@ __FDS
 .comment
  *(.comment)
 
-.debug_info       0x000000       0x11ab
+.debug_info       0x000000       0x1237
  *(.debug_info)
- .debug_info      0x000000       0x11ab build/default/production/main.o
+ .debug_info      0x000000       0x1237 build/default/production/main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000        0x174
+.debug_abbrev     0x000000        0x17d
  *(.debug_abbrev)
- .debug_abbrev    0x000000        0x174 build/default/production/main.o
+ .debug_abbrev    0x000000        0x17d build/default/production/main.o
 
-.debug_line       0x000000        0x104
+.debug_line       0x000000        0x122
  *(.debug_line)
- .debug_line      0x000000        0x104 build/default/production/main.o
+ .debug_line      0x000000        0x122 build/default/production/main.o
 
-.debug_frame      0x000000        0x196
+.debug_frame      0x000000        0x19e
  *(.debug_frame)
- .debug_frame     0x000000        0x196 build/default/production/main.o
+ .debug_frame     0x000000        0x19e build/default/production/main.o
 
 .debug_str        0x000000         0x75
  *(.debug_str)
@@ -1075,7 +1103,7 @@ LOAD shared_data_init
                   0x000018        0x112 build/default/production/main.o
 
 __c30_signature
-                  0x00012a         0x5a
+                  0x00012a         0x6c
  __c30_signature
                   0x00012a          0x6 build/default/production/main.o
  __c30_signature
@@ -1087,25 +1115,31 @@ __c30_signature
  __c30_signature
                   0x000142          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(divsf3.eo)
  __c30_signature
-                  0x000148          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fixsfsi.eo)
+                  0x000148          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(feqltle.eo)
  __c30_signature
-                  0x00014e          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatsisf.eo)
+                  0x00014e          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fgtge.eo)
  __c30_signature
-                  0x000154          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatunsisf.eo)
+                  0x000154          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fixsfsi.eo)
  __c30_signature
-                  0x00015a          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fpack.eo)
+                  0x00015a          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatsisf.eo)
  __c30_signature
-                  0x000160          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(funpack.eo)
+                  0x000160          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatunsisf.eo)
  __c30_signature
-                  0x000166          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(funpack2.eo)
+                  0x000166          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fpack.eo)
  __c30_signature
-                  0x00016c          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(futil.eo)
+                  0x00016c          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(funpack.eo)
  __c30_signature
-                  0x000172          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(mulsf3.eo)
+                  0x000172          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(funpack2.eo)
  __c30_signature
-                  0x000178          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatdisf.eo)
+                  0x000178          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(futil.eo)
  __c30_signature
-                  0x00017e          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatundisf.eo)
+                  0x00017e          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(mulsf3.eo)
+ __c30_signature
+                  0x000184          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(fcompare.eo)
+ __c30_signature
+                  0x00018a          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatdisf.eo)
+ __c30_signature
+                  0x000190          0x6 c:/program files (x86)/microchip/xc16/v1.26/bin/bin/../../lib\libm-elf.a(floatundisf.eo)
 
 .nbss               0x0800          0x4
  .nbss              0x0800          0x4 build/default/production/main.o
@@ -1137,16 +1171,16 @@ __c30_signature
  .ivt._T1Interrupt
                   0x00001a          0x2 build/default/production/main.o
 
-.const              0x8804         0x56 load address 0x000804  
- .const             0x8804         0x56 build/default/production/main.o
-                    0x8804                  _fnd_character
-                    0x884c                  _DOT
-                    0x884e                  _UNIT
-                    0x8852                  _GAIN
-                    0x8856                  _CURRENT
+.const              0x894a         0x56 load address 0x00094a  
+ .const             0x894a         0x56 build/default/production/main.o
+                    0x894a                  _fnd_character
+                    0x8992                  _DOT
+                    0x8994                  _UNIT
+                    0x8998                  _GAIN
+                    0x899c                  _CURRENT
 
-.dinit            0x00085a          0x8
- .dinit           0x00085a          0x8 data_init
+.dinit            0x0009a0          0x8
+ .dinit           0x0009a0          0x8 data_init
 
-.shared.dinit     0x000862          0x2
- .shared.dinit    0x000862          0x2 shared_data_init
+.shared.dinit     0x0009a8          0x2
+ .shared.dinit    0x0009a8          0x2 shared_data_init
