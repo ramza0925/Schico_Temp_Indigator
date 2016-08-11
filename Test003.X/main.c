@@ -41,7 +41,6 @@ int main(void) {
         Temp_Check();
         Current_Check();
         Current_Control();
-        //FND_Display((int)tmp_Value);
     }
     return 0;
 }
@@ -154,7 +153,7 @@ void Button_Check(){
 void Temp_Check(){
     const char loopValue = 100;
     int loop;                               //Loop Variable
-    float temp, vout, rt, maxV1, maxV2, minV1, minV2;           
+    float temp, vout, rt, maxV, minV;           
     float temp_array[loopValue];
     
     const float RTDA = 3.9083 * pow(10,-3);
@@ -170,27 +169,23 @@ void Temp_Check(){
         while(!AD1CON1bits.DONE);         
         temp_array[loop]=ADC1BUF1;
         temp += temp_array[loop];
-        Delay_us(5);
+        Delay_us(10);
     }
     
     //???? ???? ??
-    maxV1 = temp_array[0];
-    minV1 = temp_array[0];
-    maxV2 = temp_array[0];
-    minV2 = temp_array[0];
+    maxV = temp_array[0];
+    minV = temp_array[0];
     for(loop = 0; loop < loopValue ; loop++){
-        if(maxV1<temp_array[loop]) {
-            maxV2 = maxV1;
-            maxV1 = temp_array[loop];
+        if(maxV<temp_array[loop]) {
+            maxV = temp_array[loop];
         }
-        if(minV1>temp_array[loop]) {
-            minV2 = minV1;
-            minV1 = temp_array[loop];
+        if(minV>temp_array[loop]) {
+            minV = temp_array[loop];
         }
     }
     
     //?? ? ??
-    temp = (temp-maxV1-maxV2-minV1-minV2)/(loopValue-4);
+    temp = (temp-maxV-minV)/(loopValue-2);
     vout = (temp * UNIT)/GAIN;
     rt = vout/CURRENT;
     if(rt>=R0) {
@@ -202,7 +197,7 @@ void Temp_Check(){
         tmp_Value = (int)(tmp_Value*10)%10000;
     }
     //tmp_Value = (int)((((rt/100)-1)/0.00385f)*10.0f)%10000;
-    Delay_ms(100);
+    Delay_ms(300);
     
 }
 
