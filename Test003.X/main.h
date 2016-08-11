@@ -61,7 +61,6 @@
 
 #include <xc.h>
 #include <math.h>
-#include <stdio.h>
 
 #define FOSC        2000000                 //OSCILLATOR VALUE
 #define FCY         FOSC/2         
