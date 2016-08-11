@@ -152,15 +152,39 @@ void Button_Check(){
 
 //Temperature Check
 void Temp_Check(){
-    float temp, vout, rt;
+    const char loopValue = 50;
+    int loop;                               //Loop Variable
+    float temp, vout, rt, maxV, minV;           
+    float temp_array[loopValue];
     
+    //Channel Selection
     AD1CHS = 0x0001;
-    Delay_us(10);
-    temp = ADC1BUF1;
+    
+    temp = 0;
+    //loopValue?? ???? ????.
+    for(loop = 0 ; loop < loopValue ; loop++){
+        //TODO ? ???? ?? ? ?.
+        //while(!AD1CON1bits.DONE);         //? ??????????
+        temp_array[loop]=ADC1BUF1;
+        temp += temp_array[loop];
+        Delay_us(5);
+        //AD1CON1bits.DONE = 0;
+    }
+    
+    //???? ???? ??
+    maxV = temp_array[0];
+    minV = temp_array[0];
+    for(loop = 0; loop < loopValue ; loop++){
+        if(maxV<temp_array[loop]) maxV = temp_array[loop];
+        if(minV>temp_array[loop]) minV = temp_array[loop];
+    }
+    
+    //?? ? ??
+    temp = (temp-maxV-minV)/(loopValue-2);
     vout = (temp * UNIT)/GAIN;
     rt = vout/CURRENT;
     tmp_Value = (int)((((rt/100)-1)/0.00385f)*10.0f)%10000;
-    Delay_ms(300);
+    Delay_ms(200);
     
 }
 
