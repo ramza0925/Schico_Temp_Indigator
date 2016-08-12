@@ -7,14 +7,14 @@
 
 #include "main.h"
                             
-float tmp_Value;                            //Temperature Value
+volatile int tmp_Value ;                            //Temperature Value
 //float curr_Value;                         //current Value
 int correction_Value; 
 
 
 //TIMER1 Interrupt
-void __attribute__((__interrupt__, __shadow__)) _T1Interrupt(void){
-    int num = (int)tmp_Value;
+void __attribute__((__interrupt__, __shadow__ ,auto_psv)) _T1Interrupt(void){
+    int num = tmp_Value;
     int num2 = 0;
     
     if(num < 0) {
@@ -27,19 +27,20 @@ void __attribute__((__interrupt__, __shadow__)) _T1Interrupt(void){
         else
             PORTB = fnd_character[num/1000] | FND_AP1;
         Delay_ms(4);
-        PORTB = 0x00f0;
+        PORTB = 0xfff0;
     }
     if(num>=100){
         PORTB = fnd_character[(num%1000)/100] | FND_AP2;
         Delay_ms(4);
-        PORTB = 0x00f0;
+        PORTB = 0xfff0;
     }
     PORTB = (fnd_character[(num%100)/10] | FND_AP3) & DOT;
     Delay_ms(4);
-    PORTB = 0x00f0;
+    PORTB = 0xfff0;
     PORTB = fnd_character[num%10] | FND_AP4;
     Delay_ms(4);
-    PORTB = 0x00f0;
+    PORTB = 0xfff0;
+    Delay_ms(1);
     
     IFS0bits.T1IF = 0;              //Reset Timer1 interrupt flag and Return from ISR
 }
@@ -49,8 +50,14 @@ void __attribute__((__interrupt__, __shadow__)) _T1Interrupt(void){
  * MAIN
  *****************************************************************************/
 int main(void) {
-    
+    tmp_Value = 0;
     Init();
+    
+//    while(1){
+//        tmp_Value ++;
+//        if(tmp_Value == 9999) tmp_Value = 0;
+//        Delay_ms(300);
+//    }
     while(1){
         //Button_Check();     //TBD
         Temp_Check();
@@ -118,7 +125,7 @@ void Timer_Init(){
     T1CONbits.TCS   = 0;            //Inner Clock use
     T1CONbits.TCKPS = 0;            //1:1 Prescale
     TMR1            = 0x0000;       //Clear contents of the timer register
-    PR1             = 0x7777;       //Load the Period register with the value 0xffff
+    PR1             = 0x8888;       //Load the Period register with the value 0xffff
     IPC0bits.T1IP   = 0x07;         //Setup Timer1 interrupt for desired priority level(1)
     IFS0bits.T1IF   = 0;            //Clear the Timer1 interrupt status flag
     IEC0bits.T1IE   = 1;            //Enable Timer1 Intrrupts
@@ -186,7 +193,7 @@ void Temp_Check(){
             while(!AD1CON1bits.DONE);
             temp_arrayB[loopB] = ADC1BUF1;
             temp += temp_arrayB[loopB];
-            Delay_us(50);
+            Delay_us(5);
         }
         
         maxV = temp_arrayB[0];
@@ -219,7 +226,6 @@ void Temp_Check(){
     vout = (avgValue * UNIT)/GAIN;
     rt = vout/CURRENT;
     tmp_Value = Solve_Rational_Poly_Equation(rt);
-    tmp_Value = (int)(tmp_Value*10)%10000;
 
     Delay_ms(700);
     
@@ -235,7 +241,7 @@ void Current_Control(){
    //TODO
 }
 
-float Solve_Rational_Poly_Equation(float rt){
+int Solve_Rational_Poly_Equation(float rt){
     float result = 0;
     
     const float C0 = -245.19f;
@@ -249,5 +255,26 @@ float Solve_Rational_Poly_Equation(float rt){
     
     result = C0 + ((C1*rt+C2*pow(rt,2)+C3*pow(rt,3)+C4*pow(rt,4))/(1+C5*rt+C6*pow(rt,2)+C7*pow(rt,3)));
     
-    return result;
+    return (int)(result*10)%10000;
+}
+
+unsigned int eeRead(unsigned int address){
+    while(NVMCONbits.WR);       // wait for any last write to complete
+    TBLPAG = 0x7f;              // eprom is a t 0x7ffe00
+    return __builtin_tblrdl(0xFE00+address);
+}
+ 
+void eeWrite(unsigned int address, unsigned int data){
+    while(NVMCONbits.WR);       // wait for last write to complete
+    NVMCON = 0x4058;            // Set up NVMCON to erase one word of data EEPROM
+    TBLPAG = 0x7f;              // eprom is a t 0x7ffe00
+    __builtin_tblwtl(0xFE00+address, 0xffff);
+    asm volatile ("disi #5");
+    __builtin_write_NVM();       // Issue Unlock Sequence & Start Write Cycle 
+ 
+    while(NVMCONbits.WR);       // wait for errase to complete
+    NVMCON = 0x4004;            // Set up NVMCON to write one word of data EEPROM
+    __builtin_tblwtl(0xFE00+address, data);   // Write EEPROM data to write latch
+    asm volatile ("disi #5");
+    __builtin_write_NVM();     
 }

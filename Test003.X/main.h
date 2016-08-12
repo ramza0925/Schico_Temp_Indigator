@@ -134,6 +134,6 @@ void Temp_Check();                              //PT100 Temperature Sensor Check
 void Current_Check();                           //Consumption Current Check
 void Current_Control();                         //Consumption Current Control
 
-float Solve_Rational_Poly_Equation(float rt);   //Temperature Calculator with PT100
+int Solve_Rational_Poly_Equation(float rt);   //Temperature Calculator with PT100
 
 #endif	/* MAIN_H */
