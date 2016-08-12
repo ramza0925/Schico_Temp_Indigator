@@ -62,77 +62,78 @@
 #include <xc.h>
 #include <math.h>
 
-#define FOSC        2000000                 //OSCILLATOR VALUE
+#define FOSC        2000000                     //OSCILLATOR VALUE
 #define FCY         FOSC/2         
 #define TCY         1/FCY
 
 
 
-#define FND_AP1 0x00e0
-#define FND_AP2 0x00d0
-#define FND_AP3 0x00b0
-#define FND_AP4 0x0070
+#define FND_AP1 0x00e0                          //1000 Digit
+#define FND_AP2 0x00d0                          //100 Digit
+#define FND_AP3 0x00b0                          //10 Digit
+#define FND_AP4 0x0070                          //1 Dight
 
 //FND Charcters
 const int fnd_character[]=
     {
-        0xc000,     //0
-        0xf900,     //1
-        0xa400,     //2
-        0xb000,     //3
-        0x9900,     //4
-        0x9200,     //5
-        0x8200,     //6
-        0xd800,     //7
-        0x8000,     //8
-        0x9000,     //9
-        0x8800,     //A
-        0x8300,     //B
-        0xa700,     //C
-        0xa100,     //D
-        0x8600,     //E
-        0x8e00,     //F
-        0xc200,     //G
-        0x8900,     //H
-        0xcf00,     //I
-        0xe100,     //J
-        0x8500,     //K
-        0xc700,     //L
-        0xaa00,     //M
-        0xab00,     //N
-        0xa300,     //O
-        0x8c00,     //P
-        0x9800,     //Q
-        0xaf00,     //R
-        0x9200,     //S
-        0x8700,     //T
-        0xe300,     //U
-        0x8100,     //V
-        0x9500,     //W
-        0xc900,     //X
-        0x9100,     //Y
-        0xb600,     //Z
+        0xc000,                                 //0
+        0xf900,                                 //1
+        0xa400,                                 //2
+        0xb000,                                 //3
+        0x9900,                                 //4
+        0x9200,                                 //5
+        0x8200,                                 //6
+        0xd800,                                 //7
+        0x8000,                                 //8
+        0x9000,                                 //9
+        0x8800,                                 //A
+        0x8300,                                 //B
+        0xa700,                                 //C
+        0xa100,                                 //D
+        0x8600,                                 //E
+        0x8e00,                                 //F
+        0xc200,                                 //G
+        0x8900,                                 //H
+        0xcf00,                                 //I
+        0xe100,                                 //J
+        0x8500,                                 //K
+        0xc700,                                 //L
+        0xaa00,                                 //M
+        0xab00,                                 //N
+        0xa300,                                 //O
+        0x8c00,                                 //P
+        0x9800,                                 //Q
+        0xaf00,                                 //R
+        0x9200,                                 //S
+        0x8700,                                 //T
+        0xe300,                                 //U
+        0x8100,                                 //V
+        0x9500,                                 //W
+        0xc900,                                 //X
+        0x9100,                                 //Y
+        0xb600,                                 //Z
     };
 
-const int DOT = 0x7fff;
+const int DOT = 0x7fff;                         //FND Dot
 
-const float UNIT = 3.3f/4096;           //Volt per Unit
-const float GAIN = 1+20000/3000;       //SENSOR GAIN
-const float CURRENT = 0.001f;
+const float UNIT = 3.3f/4096;                   //Volt per Unit in ADC
+const float GAIN = 1+20000/3000;                //ADC GAIN
+const float CURRENT = 0.001f;                   //PT100ohm Current
 
 //Functions
-void Delay_us(unsigned char _dcnt);
-void Delay_ms(unsigned int cnt);
-void Init();
-void OSC_Init();
-void Port_Init();
-void Timer_Init();
-void ADC_Init();
-void Button_Check();
-void Temp_Check();
-void Current_Check();
-void Current_Control();
+void Delay_us(unsigned char _dcnt);             //Make Delay micro seconds
+void Delay_ms(unsigned int cnt);                //Make Delay milli seconds
+void Init();                                    //Initialize
+void OSC_Init();                                //Oscillator Intialize
+void Port_Init();                               //Port Initialize
+void Timer_Init();                              //Timer Initialize
+void ADC_Init();                                //ADC Initialize
+void Data_Init();                               //Data EEPROM Load
+void Button_Check();                            //TACT Switch Check
+void Temp_Check();                              //PT100 Temperature Sensor Check
+void Current_Check();                           //Consumption Current Check
+void Current_Control();                         //Consumption Current Control
 
-float Solve_Rational_Poly_Equation(float rt);
+float Solve_Rational_Poly_Equation(float rt);   //Temperature Calculator with PT100
 
 #endif	/* MAIN_H */

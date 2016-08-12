@@ -9,11 +9,13 @@
                             
 float tmp_Value;                            //Temperature Value
 //float curr_Value;                         //current Value
+int correction_Value; 
 
+
+//TIMER1 Interrupt
 void __attribute__((__interrupt__, __shadow__)) _T1Interrupt(void){
     int num = (int)tmp_Value;
     int num2 = 0;
-    
     
     if(num < 0) {
         num2 = num;
@@ -24,19 +26,19 @@ void __attribute__((__interrupt__, __shadow__)) _T1Interrupt(void){
             PORTB = (fnd_character[num/1000] | FND_AP1) & DOT;
         else
             PORTB = fnd_character[num/1000] | FND_AP1;
-        Delay_ms(5);
+        Delay_ms(4);
         PORTB = 0x00f0;
     }
     if(num>=100){
         PORTB = fnd_character[(num%1000)/100] | FND_AP2;
-        Delay_ms(5);
+        Delay_ms(4);
         PORTB = 0x00f0;
     }
     PORTB = (fnd_character[(num%100)/10] | FND_AP3) & DOT;
-    Delay_ms(5);
+    Delay_ms(4);
     PORTB = 0x00f0;
     PORTB = fnd_character[num%10] | FND_AP4;
-    Delay_ms(5);
+    Delay_ms(4);
     PORTB = 0x00f0;
     
     IFS0bits.T1IF = 0;              //Reset Timer1 interrupt flag and Return from ISR
@@ -50,17 +52,13 @@ int main(void) {
     
     Init();
     while(1){
-        Button_Check();     //TBD
+        //Button_Check();     //TBD
         Temp_Check();
-        Current_Check();
-        Current_Control();
+        //Current_Check();
+        //Current_Control();
     }
     return 0;
 }
-/******************************************************************************
- * End MAIN
- *****************************************************************************/
-
 
 //Make Delay us
 void Delay_us(unsigned char _dcnt) {
@@ -83,7 +81,8 @@ void Init(){
     OSC_Init();
     Port_Init();
     Timer_Init();
-    ADC_Init(); 
+    ADC_Init();
+    Data_Init();
 }
 
 //OSCillator Initialize
@@ -143,7 +142,7 @@ void ADC_Init(){
     AD1CON2bits.PVCFG   = 0;        //Coverter Positive Voltage Reference Configuration bits(Vdd)
     
     //AD1CON3 register Setting
-    AD1CON3bits.ADCS    = 63;        //A/D Conversion Time Select bits(64*Tcy 0x3F)
+    AD1CON3bits.ADCS    = 63;       //A/D Conversion Time Select bits(64*Tcy 0x3F)
     AD1CON3bits.SAMC    = 0;        //Auto-Sample Time Select bits
     AD1CON3bits.ADRC    = 0;        //A/D Conversion Clock Source bit(System Clock)
     
@@ -155,6 +154,10 @@ void ADC_Init(){
     
     //ADC1 Convert Start
     AD1CON1bits.ADON    = 1;        //ADC Covert Start
+}
+
+void Data_Init(){
+    
 }
 
 //Button Check
@@ -218,7 +221,7 @@ void Temp_Check(){
     tmp_Value = Solve_Rational_Poly_Equation(rt);
     tmp_Value = (int)(tmp_Value*10)%10000;
 
-    Delay_ms(400);
+    Delay_ms(700);
     
 }
 
