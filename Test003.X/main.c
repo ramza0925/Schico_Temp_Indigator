@@ -14,6 +14,7 @@ void __attribute__((__interrupt__, __shadow__)) _T1Interrupt(void){
     int num = (int)tmp_Value;
     int num2 = 0;
     
+    
     if(num < 0) {
         num2 = num;
         num = num * -1;
@@ -215,29 +216,6 @@ void Temp_Check(){
     }
     avgValue = (avgValue-maxV-minV)/(loopCountA-2);
     
-//    temp = 0;
-//    //loopValue?? ???? ????.
-//    for(loopB = 0 ; loopB < loopCountA ; loopB++){
-//        while(!AD1CON1bits.DONE);         
-//        temp_array[loopB]=ADC1BUF1;
-//        temp += temp_array[loopB];
-//        Delay_us(50);
-//    }
-//    
-//    //???? ???? ??
-//    maxV = temp_array[0];
-//    minV = temp_array[0];
-//    for(loopB = 0; loopB < loopCountA ; loopB++){
-//        if(maxV<temp_array[loopB]) {
-//            maxV = temp_array[loopB];
-//        }
-//        if(minV>temp_array[loopB]) {
-//            minV = temp_array[loopB];
-//        }
-//    }
-//    
-//    //?? ? ??
-//    temp = (temp-maxV-minV)/(loopCountA-2);
     vout = (avgValue * UNIT)/GAIN;
     rt = vout/CURRENT;
     if(rt>=R0) {
@@ -245,9 +223,9 @@ void Temp_Check(){
         tmp_Value = (int)(tmp_Value*10)%10000;
     }
     else {
-        tmp_Value = Solve_Fourth_Equation(RTDC, -100*R0*RTDC, R0*RTDB, R0*RTDA, R0-rt);
-        tmp_Value = (int)(tmp_Value*10)%10000;
-        //tmp_Value = (int)((((rt/100)-1)/0.00385f)*10.0f)%10000;
+//        tmp_Value = Solve_Fourth_Equation(RTDC, -100*R0*RTDC, R0*RTDB, R0*RTDA, R0-rt);
+//        tmp_Value = (int)(tmp_Value*10)%10000;
+        tmp_Value = (int)((((rt/100)-1)/0.00385f)*10.0f)%10000;
     }
     Delay_ms(400);
     
