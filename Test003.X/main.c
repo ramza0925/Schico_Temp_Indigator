@@ -15,17 +15,15 @@ int correction_Value;
 //TIMER1 Interrupt
 void __attribute__((__interrupt__, __shadow__ ,auto_psv)) _T1Interrupt(void){
     int num = tmp_Value;
-    int num2 = 0;
     
     if(num < 0) {
-        num2 = num;
         num = num * -1;
+        PORTB = MINUS | FND_AP1;
+        Delay_ms(4);
+        PORTB = 0xfff0;
     }
     if(num>=1000){
-        if(num2 < 0)
-            PORTB = (fnd_character[num/1000] | FND_AP1) & DOT;
-        else
-            PORTB = fnd_character[num/1000] | FND_AP1;
+        PORTB = fnd_character[num/1000] | FND_AP1;
         Delay_ms(4);
         PORTB = 0xfff0;
     }

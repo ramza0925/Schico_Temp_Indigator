@@ -115,6 +115,7 @@ const int fnd_character[]=
     };
 
 const int DOT = 0x7fff;                         //FND Dot
+const int MINUS = 0xbf00;                       //FND MINUS
 
 const float UNIT = 3.3f/4096.0f;                   //Volt per Unit in ADC
 const float GAIN = 1.0f+20000.0f/3000.0f;                //ADC GAIN
