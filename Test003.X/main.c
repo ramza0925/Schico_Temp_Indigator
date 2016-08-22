@@ -222,9 +222,11 @@ void Temp_Check(){
         }
     }
     avgValue = (avgValue-maxV-minV)/(loopCountA-2);
+    avgValue = avgValue+(0.00004f*pow(avgValue,2)+0.0612f*avgValue+5.2644f);
     
     vout = (avgValue * UNIT)/GAIN;
     rt = vout/CURRENT;
+    //tmp_Value = avgValue;
     tmp_Value = Solve_Rational_Poly_Equation(rt);
 
     Delay_ms(700);
