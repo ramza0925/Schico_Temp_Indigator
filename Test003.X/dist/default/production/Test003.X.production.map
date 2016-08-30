@@ -469,9 +469,9 @@ __FDS
 .comment
  *(.comment)
 
-.debug_info       0x000000       0x15d8
+.debug_info       0x000000       0x15e2
  *(.debug_info)
- .debug_info      0x000000       0x15d8 build/default/production/main.o
+ .debug_info      0x000000       0x15e2 build/default/production/main.o
  *(.gnu.linkonce.wi.*)
 
 .debug_abbrev     0x000000        0x1d5
