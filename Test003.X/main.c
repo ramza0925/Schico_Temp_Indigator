@@ -180,11 +180,12 @@ void Button_Check(){
 void Temp_Check(){
     float rt, adcValue1, adcValue2;           
         
-    adcValue1 = Get_ADC_Value(0x0000, ADC1BUF0);
-    Delay_ms(50);
+    //adcValue1 = Get_ADC_Value(0x0000, ADC1BUF0);
+    //Delay_ms(50);
     adcValue2 = Get_ADC_Value(0x0100, ADC1BUF1);
     
-    rt = 10000.0f*(2.0f*adcValue2 - adcValue1)/(4096-adcValue1);
+    //rt = 10000.0f*(2.0f*adcValue2 - adcValue1)/(4096-adcValue1);
+    rt = 10000.0f*adcValue2/(4096-adcValue2);
     switch(sys_mode){
         case AVG1:
             tmp_Value = adcValue1;
