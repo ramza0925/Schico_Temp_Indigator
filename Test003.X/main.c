@@ -178,17 +178,21 @@ void Button_Check(){
 
 //Temperature Check
 void Temp_Check(){
-    float rt, adcValue1, adcValue2;           
+    float rt, vout, adcValue1, adcValue2;           
         
     //adcValue1 = Get_ADC_Value(0x0000, ADC1BUF0);
     //Delay_ms(50);
-    adcValue2 = Get_ADC_Value(0x0100, ADC1BUF1);
+    adcValue2 = Get_ADC_Value(0x0001, ADC1BUF1);
     
     //rt = 10000.0f*(2.0f*adcValue2 - adcValue1)/(4096-adcValue1);
-    rt = 10000.0f*adcValue2/(4096-adcValue2);
+    
+    vout = (adcValue2*UNIT)/GAIN;
+    rt = RREF*vout/(VOLTAGE-vout);
+    //rt = vout/CURRENT;
+    
     switch(sys_mode){
         case AVG1:
-            tmp_Value = adcValue1;
+            tmp_Value = vout;
             break;
         case AVG2:
             tmp_Value = adcValue2;

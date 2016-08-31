@@ -126,12 +126,14 @@ enum sys_Mode  {
     NORMAL
 };
 
-const int DOT = 0x7fff;                         //FND Dot
-const int MINUS = 0xbf00;                       //FND MINUS
+const int DOT = 0x7fff;                          //FND Dot
+const int MINUS = 0xbf00;                        //FND MINUS
 
-const float UNIT = 3.3f/4096.0f;                   //Volt per Unit in ADC
-const float GAIN = 1.0f+20000.0f/3000.0f;                //ADC GAIN
+const float UNIT = 3.3f/4096.0f;                //Volt per Unit in ADC
+const float GAIN = 1.0f+20000.0f/3000.0f;       //ADC GAIN
+const float VOLTAGE = 3.3f;
 const float CURRENT = 0.001f;                   //PT100ohm Current
+const float RREF = 10000.0f;
 
 //Functions
 void Delay_us(unsigned char _dcnt);             //Make Delay micro seconds
