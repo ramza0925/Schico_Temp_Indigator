@@ -123,7 +123,7 @@ enum mode {
     ADC_VIEW=0,
     RRTD_VIEW,
     NORMAL_VIEW,
-    FIX_VIEW
+    VOUT_VIEW
 }myMode;
 
 const int DOT = 0x7fff;                         //FND Dot

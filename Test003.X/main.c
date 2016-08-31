@@ -184,7 +184,7 @@ void Button_Check(){
     }
     if(SW4cnt > 5){
         SW4cnt = 0;
-        myMode = FIX_VIEW;
+        myMode = VOUT_VIEW;
     }
 }
 
@@ -242,6 +242,7 @@ void Temp_Check(){
     
     vout = (avgValue * UNIT)/GAIN;
     rt = vout/CURRENT;
+    //rt = 10000.0f*(vout/(3.3f-vout));
     
     switch(myMode){
         case ADC_VIEW:
@@ -253,8 +254,8 @@ void Temp_Check(){
         case NORMAL_VIEW:
             tmp_Value = Solve_Rational_Poly_Equation(rt);
             break;
-        case FIX_VIEW:
-            tmp_Value = 7777;
+        case VOUT_VIEW:
+            tmp_Value = vout*10;
             break;
     }
     //Delay_ms(700);
