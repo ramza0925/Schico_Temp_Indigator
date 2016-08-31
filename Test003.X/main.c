@@ -11,6 +11,10 @@ volatile int tmp_Value ;                            //Temperature Value
 //float curr_Value;                         //current Value
 int correction_Value; 
 
+unsigned char SW1_cnt=0, SW2_cnt=0, SW3_cnt=0, SW4_cnt=0;
+
+enum sys_Mode sys_mode;
+
 
 //TIMER1 Interrupt
 void __attribute__((__interrupt__, __shadow__ ,auto_psv)) _T1Interrupt(void){
@@ -49,15 +53,11 @@ void __attribute__((__interrupt__, __shadow__ ,auto_psv)) _T1Interrupt(void){
  *****************************************************************************/
 int main(void) {
     tmp_Value = 0;
+    sys_mode = RT;
     Init();
     
-//    while(1){
-//        tmp_Value ++;
-//        if(tmp_Value == 9999) tmp_Value = 0;
-//        Delay_ms(300);
-//    }
     while(1){
-        //Button_Check();     //TBD
+        Button_Check();     
         Temp_Check();
         //Current_Check();
         //Current_Control();
@@ -88,6 +88,7 @@ void Init(){
     Timer_Init();
     ADC_Init();
     Data_Init();
+    
 }
 
 //OSCillator Initialize
@@ -109,7 +110,7 @@ void OSC_Init(){
 //Port Initalize
 void Port_Init(){
     //PORT Initialize
-    TRISA = 0x0F03;                 //0b111100000011
+    TRISA = 0x0F0F;                 //0b0000111100001111
     PORTA = 0x0000;
     TRISB = 0x0000;
     PORTB = 0x0000;
@@ -167,29 +168,60 @@ void Data_Init(){
 
 //Button Check
 void Button_Check(){
-   //TODO TBD
+    //Delay_ms(10);
+    
+    if(SW1 == 0) sys_mode = AVG1;
+    if(SW2 == 0) sys_mode = AVG2;
+    if(SW3 == 0) sys_mode = RT;
+    if(SW4 == 0) sys_mode = NORMAL;    
 }
 
 //Temperature Check
 void Temp_Check(){
+    float rt, adcValue1, adcValue2;           
+        
+    adcValue1 = Get_ADC_Value(0x0000, ADC1BUF0);
+    Delay_ms(50);
+    adcValue2 = Get_ADC_Value(0x0100, ADC1BUF1);
+    
+    rt = 10000.0f*(2.0f*adcValue2 - adcValue1)/(4096-adcValue1);
+    switch(sys_mode){
+        case AVG1:
+            tmp_Value = adcValue1;
+            break;
+        case AVG2:
+            tmp_Value = adcValue2;
+            break;
+        case RT:
+            tmp_Value = rt;
+            break;
+        case NORMAL:
+            tmp_Value = Solve_Rational_Poly_Equation(rt);
+            break;
+    }
+    Delay_ms(500);
+    
+}
+
+float Get_ADC_Value(unsigned int ch,unsigned int buffer){
     const char loopCountA = 12;
     const char loopCountB = 12;
     
-    int loopA, loopB;                               //Loop Variable
-    float temp, vout, rt, maxV, minV, avgValue;           
+    int loopA, loopB;
+    
+    float temp, maxV, minV, avgValue;
+    
     float temp_arrayB[loopCountB];
     float temp_arrayA[loopCountA];
     
-    //Channel Selection
-    AD1CHS = 0x0001;
+    AD1CHS = ch;
     Delay_us(50);
     
-    avgValue = 0;
     for(loopA = 0 ; loopA < loopCountA ; loopA++){
         temp = 0;
         for(loopB = 0 ; loopB < loopCountB ; loopB++){
             while(!AD1CON1bits.DONE);
-            temp_arrayB[loopB] = ADC1BUF1;
+            temp_arrayB[loopB] = buffer;
             temp += temp_arrayB[loopB];
             Delay_us(5);
         }
@@ -219,16 +251,10 @@ void Temp_Check(){
             minV = temp_arrayA[loopA];
         }
     }
+    
     avgValue = (avgValue-maxV-minV)/(loopCountA-2);
-    //avgValue = avgValue+(0.00004f*pow(avgValue,2)+0.0612f*avgValue+5.2644f);
     
-    vout = (avgValue * UNIT)/GAIN;
-    rt = vout/CURRENT;
-    //tmp_Value = avgValue;
-    tmp_Value = Solve_Rational_Poly_Equation(rt);
-
-    Delay_ms(700);
-    
+    return avgValue;
 }
 
 //Current Check

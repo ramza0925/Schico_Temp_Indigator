@@ -73,6 +73,11 @@
 #define FND_AP3 0x00b0                          //10 Digit
 #define FND_AP4 0x0070                          //1 Dight
 
+#define SW1 PORTAbits.RA8
+#define SW2 PORTAbits.RA9
+#define SW3 PORTAbits.RA10
+#define SW4 PORTAbits.RA11
+
 //FND Charcters
 const int fnd_character[]=
     {
@@ -114,6 +119,13 @@ const int fnd_character[]=
         0xb600,                                 //Z
     };
 
+enum sys_Mode  {
+    AVG1=0,
+    AVG2,
+    RT,
+    NORMAL
+};
+
 const int DOT = 0x7fff;                         //FND Dot
 const int MINUS = 0xbf00;                       //FND MINUS
 
@@ -134,6 +146,8 @@ void Button_Check();                            //TACT Switch Check
 void Temp_Check();                              //PT100 Temperature Sensor Check
 void Current_Check();                           //Consumption Current Check
 void Current_Control();                         //Consumption Current Control
+
+float Get_ADC_Value(unsigned int ch, unsigned int buffer);
 
 int Solve_Rational_Poly_Equation(float rt);   //Temperature Calculator with PT100
 
