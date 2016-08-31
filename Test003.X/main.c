@@ -11,6 +11,8 @@ volatile int tmp_Value ;                            //Temperature Value
 //float curr_Value;                         //current Value
 int correction_Value; 
 
+unsigned char SW1cnt, SW2cnt, SW3cnt, SW4cnt;
+
 
 //TIMER1 Interrupt
 void __attribute__((__interrupt__, __shadow__ ,auto_psv)) _T1Interrupt(void){
@@ -50,14 +52,10 @@ void __attribute__((__interrupt__, __shadow__ ,auto_psv)) _T1Interrupt(void){
 int main(void) {
     tmp_Value = 0;
     Init();
+    myMode = NORMAL_VIEW;
     
-//    while(1){
-//        tmp_Value ++;
-//        if(tmp_Value == 9999) tmp_Value = 0;
-//        Delay_ms(300);
-//    }
     while(1){
-        //Button_Check();     //TBD
+        Button_Check();     //TBD
         Temp_Check();
         //Current_Check();
         //Current_Control();
@@ -109,7 +107,7 @@ void OSC_Init(){
 //Port Initalize
 void Port_Init(){
     //PORT Initialize
-    TRISA = 0x0F03;                 //0b111100000011
+    TRISA = 0x0F0F;                 //0b0000111100001111
     PORTA = 0x0000;
     TRISB = 0x0000;
     PORTB = 0x0000;
@@ -167,7 +165,27 @@ void Data_Init(){
 
 //Button Check
 void Button_Check(){
-   //TODO TBD
+    if(SW1 == 0) SW1cnt++;
+    if(SW2 == 0) SW2cnt++;
+    if(SW3 == 0) SW3cnt++;
+    if(SW4 == 0) SW4cnt++;
+    
+    if(SW1cnt > 5){
+        SW1cnt = 0;
+        myMode = ADC_VIEW;
+    }
+    if(SW2cnt > 5){
+        SW2cnt = 0;
+        myMode = RRTD_VIEW;
+    }
+    if(SW3cnt > 5){
+        SW3cnt = 0;
+        myMode = NORMAL_VIEW;
+    }
+    if(SW4cnt > 5){
+        SW4cnt = 0;
+        myMode = FIX_VIEW;
+    }
 }
 
 //Temperature Check
@@ -224,10 +242,22 @@ void Temp_Check(){
     
     vout = (avgValue * UNIT)/GAIN;
     rt = vout/CURRENT;
-    //tmp_Value = avgValue;
-    tmp_Value = Solve_Rational_Poly_Equation(rt);
-
-    Delay_ms(700);
+    
+    switch(myMode){
+        case ADC_VIEW:
+            tmp_Value = avgValue;
+            break;
+        case RRTD_VIEW:
+            tmp_Value = rt;
+            break;
+        case NORMAL_VIEW:
+            tmp_Value = Solve_Rational_Poly_Equation(rt);
+            break;
+        case FIX_VIEW:
+            tmp_Value = 7777;
+            break;
+    }
+    //Delay_ms(700);
     
 }
 

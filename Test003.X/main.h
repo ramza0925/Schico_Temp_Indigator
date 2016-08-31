@@ -73,6 +73,11 @@
 #define FND_AP3 0x00b0                          //10 Digit
 #define FND_AP4 0x0070                          //1 Dight
 
+#define SW1     PORTAbits.RA8
+#define SW2     PORTAbits.RA9
+#define SW3     PORTAbits.RA10
+#define SW4     PORTAbits.RA11
+
 //FND Charcters
 const int fnd_character[]=
     {
@@ -113,6 +118,13 @@ const int fnd_character[]=
         0x9100,                                 //Y
         0xb600,                                 //Z
     };
+
+enum mode {
+    ADC_VIEW=0,
+    RRTD_VIEW,
+    NORMAL_VIEW,
+    FIX_VIEW
+}myMode;
 
 const int DOT = 0x7fff;                         //FND Dot
 const int MINUS = 0xbf00;                       //FND MINUS
