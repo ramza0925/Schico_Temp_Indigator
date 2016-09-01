@@ -133,9 +133,9 @@ enum dp_mode {
 const int DOT = 0x7fff;                         //FND Dot
 const int MINUS = 0xbf00;                       //FND MINUS
 
-const float UNIT = 3.3f/4096.0f;                   //Volt per Unit in ADC
-const float GAIN = 1.0f+20000.0f/3000.0f;                //ADC GAIN
+const float RESOLUTION = 4096.0f;
 const float CURRENT = 0.001f;                   //PT100ohm Current
+const float GAIN = 20000.0f/1200.0f;
 
 //Functions
 void Delay_us(unsigned char _dcnt);             //Make Delay micro seconds
@@ -152,9 +152,10 @@ void Current_Check();                           //Consumption Current Check
 void Current_Control();                         //Consumption Current Control
 
 void FND_String_Display(char* string, unsigned char length);
-void FND_Number_Display(int num);
+void FND_Number_Display(int num, int dot);
 int Solve_Rational_Poly_Equation(float rt);   //Temperature Calculator with PT100
 void Set_Message(char* msg, unsigned char leng);
+float Get_ADC(unsigned int ch, unsigned int buffer);
 
 
 #endif	/* MAIN_H */

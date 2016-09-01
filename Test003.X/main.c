@@ -9,8 +9,11 @@
                             
 volatile int tmp_Value = 0;                            //Temperature Value
 volatile int rrtd_Value = 0;
-char* message;
-unsigned char length;
+volatile int adc_Value = 0;
+char* message ="";
+unsigned char length = 0;
+
+float voltage_Total = 0.0f;
 
 //float curr_Value;                                 //current Value
 
@@ -20,24 +23,27 @@ unsigned int APs[4] = {FND_AP1, FND_AP2, FND_AP3, FND_AP4};
 //TIMER1 Interrupt
 void __attribute__((__interrupt__, __shadow__ ,auto_psv)) _T1Interrupt(void){
     if(myMode == NORMAL_VIEW && dpMode == NUM_MODE){
-        FND_Number_Display(tmp_Value);
+        FND_Number_Display(tmp_Value, 2);
     }
     else if(myMode == RRTD_VIEW && dpMode == NUM_MODE){
-        FND_Number_Display(rrtd_Value);
+        FND_Number_Display(rrtd_Value,2);
+    }
+    else if(myMode == SETTING && dpMode == NUM_MODE){
+        FND_Number_Display(adc_Value, 0);
     }
     else
         FND_String_Display(message, length);
     IFS0bits.T1IF = 0;              //Reset Timer1 interrupt flag and Return from ISR
 }
 
-
 /*****************************************************************************
  * MAIN
  *****************************************************************************/
 int main(void) {
-    Init();
+    voltage_Total = 3.3f;
     myMode = NORMAL_VIEW;
     dpMode = NUM_MODE;
+    Init();
     
     while(1){
         Button_Check();     
@@ -126,6 +132,7 @@ void ADC_Init(){
     AD1CON1bits.ADON    = 1;        //ADC Covert Start
 }
 
+//EEPROM Data Load
 void Data_Init(){
     
 }
@@ -138,32 +145,47 @@ void Button_Check(){
             case NORMAL_VIEW:
                 dpMode = STR_MODE;
                 Set_Message("SET",3);
-                Delay_ms(300);
-                Set_Message("MODE",4);
-                Delay_ms(500);
-                Set_Message("SET",3);
+                Delay_ms(1000);
                 myMode = SETTING;
+                dpMode = NUM_MODE;
                 break;
             case SETTING:
+                dpMode = STR_MODE;
                 Set_Message("NOT",3);
-                Delay_ms(300);
+                Delay_ms(500);
                 Set_Message("SAVE",4);
-                Delay_ms(500);
-                Set_Message("RRTD",4);
-                Delay_ms(300);
-                Set_Message("MODE",4);
-                Delay_ms(500);
+                Delay_ms(1000);
+                Set_Message("RES",3);
+                Delay_ms(1000);
                 myMode = RRTD_VIEW;
                 dpMode = NUM_MODE;
                 break;
             case RRTD_VIEW:
                 dpMode = STR_MODE;
-                Set_Message("NORM",4);
-                Delay_ms(300);
-                Set_Message("MODE",4);
-                Delay_ms(500);
+                Set_Message("NOR",3);
+                Delay_ms(1000);
                 myMode = NORMAL_VIEW;
                 dpMode = NUM_MODE;
+                break;
+        }
+    }
+    if(ENTER == 0){
+        switch(myMode){
+            case NORMAL_VIEW:
+                break;
+            case SETTING:
+                voltage_Total = (100.0f*RESOLUTION*CURRENT*GAIN)/Get_ADC(0x0001, ADC1BUF1);
+                dpMode = STR_MODE;
+                Set_Message("SAVE",4);
+                Delay_ms(500);
+                Set_Message("OK",2);
+                Delay_ms(1000);
+                Set_Message("RES",3);
+                Delay_ms(1000);
+                myMode = RRTD_VIEW;
+                dpMode = NUM_MODE;
+                break;
+            case RRTD_VIEW:
                 break;
         }
     }
@@ -171,57 +193,13 @@ void Button_Check(){
 
 //Temperature Check
 void Temp_Check(){
-    const char loopCountA = 12;
-    const char loopCountB = 12;
+    float vout, rt, adc;
     
-    int loopA, loopB;                               //Loop Variable
-    float temp, vout, rt, maxV, minV, avgValue;           
-    float temp_arrayB[loopCountB];
-    float temp_arrayA[loopCountA];
+    adc = Get_ADC(0x0001, ADC1BUF1);
+    adc_Value = adc_Value+(0.00004f*pow(adc_Value,2)+0.0612f*adc_Value+5.2644f);
     
-    //Channel Selection
-    AD1CHS = 0x0001;
-    Delay_us(50);
+    vout = (adc * voltage_Total/RESOLUTION)/GAIN;
     
-    avgValue = 0;
-    for(loopA = 0 ; loopA < loopCountA ; loopA++){
-        temp = 0;
-        for(loopB = 0 ; loopB < loopCountB ; loopB++){
-            while(!AD1CON1bits.DONE);
-            temp_arrayB[loopB] = ADC1BUF1;
-            temp += temp_arrayB[loopB];
-            Delay_us(5);
-        }
-        
-        maxV = temp_arrayB[0];
-        minV = temp_arrayB[0];
-        for(loopB = 0; loopB < loopCountB ; loopB++){
-            if(maxV<temp_arrayB[loopB]) {
-                maxV = temp_arrayB[loopB];
-            }
-            if(minV>temp_arrayB[loopB]) {
-                minV = temp_arrayB[loopB];
-            }
-        }
-        //?? ? ??
-        temp_arrayA[loopA] = (temp-maxV-minV)/(loopCountB-2);
-        avgValue += temp_arrayA[loopA];
-    }
-    
-    maxV = temp_arrayA[0];
-    minV = temp_arrayA[0];
-    for(loopA = 0 ; loopA < loopCountA ; loopA++){
-        if(maxV<temp_arrayA[loopA]) {
-            maxV = temp_arrayA[loopA];
-        }
-        if(minV>temp_arrayA[loopA]) {
-            minV = temp_arrayA[loopA];
-        }
-    }
-    avgValue = (avgValue-maxV-minV)/(loopCountA-2);
-    avgValue = avgValue+(0.00004f*pow(avgValue,2)+0.0612f*avgValue+5.2644f);
-    
-    vout = avgValue * UNIT;
     rt = vout/CURRENT;
     
     switch(myMode){
@@ -232,6 +210,7 @@ void Temp_Check(){
             tmp_Value = Solve_Rational_Poly_Equation(rt);
             break;
         case SETTING:
+            adc_Value = (int)adc%10000;
             break;
     }
     Delay_ms(300);
@@ -291,7 +270,7 @@ void FND_String_Display(char* string, unsigned char length){
     Delay_ms(1);
 }
 
-void FND_Number_Display(int num){    
+void FND_Number_Display(int num, int dot){    
     if(num < 0) {
         num = num * -1;
         PORTB = MINUS | FND_AP1;
@@ -299,19 +278,31 @@ void FND_Number_Display(int num){
         PORTB = 0xfff0;
     }
     if(num>=1000){
-        PORTB = fnd_character[num/1000] | FND_AP1;
+        if(dot == 4)
+            PORTB = (fnd_character[num/1000] | FND_AP1) & DOT;
+        else
+            PORTB = fnd_character[num/1000] | FND_AP1;
         Delay_ms(4);
         PORTB = 0xfff0;
     }
     if(num>=100){
-        PORTB = fnd_character[(num%1000)/100] | FND_AP2;
+        if(dot == 3)
+            PORTB = (fnd_character[(num%1000)/100] | FND_AP2) & DOT;
+        else
+            PORTB = fnd_character[(num%1000)/100] | FND_AP2;
         Delay_ms(4);
         PORTB = 0xfff0;
     }
-    PORTB = (fnd_character[(num%100)/10] | FND_AP3) & DOT;
+    if(dot ==2 )
+        PORTB = (fnd_character[(num%100)/10] | FND_AP3) & DOT;
+    else
+        PORTB = (fnd_character[(num%100)/10] | FND_AP3);
     Delay_ms(4);
     PORTB = 0xfff0;
-    PORTB = fnd_character[num%10] | FND_AP4;
+    if(dot == 1)
+        PORTB = (fnd_character[num%10] | FND_AP4) & DOT;
+    else
+        PORTB = fnd_character[num%10] | FND_AP4;
     Delay_ms(4);
     PORTB = 0xfff0;
     Delay_ms(1);
@@ -320,4 +311,56 @@ void FND_Number_Display(int num){
 void Set_Message(char* msg, unsigned char leng){
     message = msg;
     length = leng;
+}
+
+float Get_ADC(unsigned int ch, unsigned int buffer){
+    const char loopCountA = 12;
+    const char loopCountB = 12;
+    
+    int loopA, loopB;                               //Loop Variable
+    float temp, maxV, minV, avgValue;           
+    float temp_arrayB[loopCountB];
+    float temp_arrayA[loopCountA];
+    
+    //Channel Selection
+    AD1CHS = ch;
+    Delay_us(50);
+    
+    avgValue = 0;
+    for(loopA = 0 ; loopA < loopCountA ; loopA++){
+        temp = 0;
+        for(loopB = 0 ; loopB < loopCountB ; loopB++){
+            while(!AD1CON1bits.DONE);
+            temp_arrayB[loopB] = buffer;
+            temp += temp_arrayB[loopB];
+            Delay_us(5);
+        }
+        
+        maxV = temp_arrayB[0];
+        minV = temp_arrayB[0];
+        for(loopB = 0; loopB < loopCountB ; loopB++){
+            if(maxV<temp_arrayB[loopB]) {
+                maxV = temp_arrayB[loopB];
+            }
+            if(minV>temp_arrayB[loopB]) {
+                minV = temp_arrayB[loopB];
+            }
+        }
+        //?? ? ??
+        temp_arrayA[loopA] = (temp-maxV-minV)/(loopCountB-2);
+        avgValue += temp_arrayA[loopA];
+    }
+    
+    maxV = temp_arrayA[0];
+    minV = temp_arrayA[0];
+    for(loopA = 0 ; loopA < loopCountA ; loopA++){
+        if(maxV<temp_arrayA[loopA]) {
+            maxV = temp_arrayA[loopA];
+        }
+        if(minV>temp_arrayA[loopA]) {
+            minV = temp_arrayA[loopA];
+        }
+    }
+    avgValue = (avgValue-maxV-minV)/(loopCountA-2);
+    return avgValue;
 }
