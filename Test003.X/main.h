@@ -73,10 +73,10 @@
 #define FND_AP3 0x00b0                          //10 Digit
 #define FND_AP4 0x0070                          //1 Dight
 
-#define SW1     PORTAbits.RA8
-#define SW2     PORTAbits.RA9
-#define SW3     PORTAbits.RA10
-#define SW4     PORTAbits.RA11
+#define MODE    PORTAbits.RA8
+#define UP      PORTAbits.RA9
+#define DOWN    PORTAbits.RA10
+#define ENTER   PORTAbits.RA11
 
 //FND Charcters
 const int fnd_character[]=
@@ -120,11 +120,15 @@ const int fnd_character[]=
     };
 
 enum mode {
-    ADC_VIEW=0,
-    RRTD_VIEW,
-    NORMAL_VIEW,
-    VOUT_VIEW
+    NORMAL_VIEW=0,
+    SETTING,
+    RRTD_VIEW
 }myMode;
+
+enum dp_mode {
+    NUM_MODE=0,
+    STR_MODE
+}dpMode;
 
 const int DOT = 0x7fff;                         //FND Dot
 const int MINUS = 0xbf00;                       //FND MINUS
@@ -147,6 +151,10 @@ void Temp_Check();                              //PT100 Temperature Sensor Check
 void Current_Check();                           //Consumption Current Check
 void Current_Control();                         //Consumption Current Control
 
+void FND_String_Display(char* string, unsigned char length);
+void FND_Number_Display(int num);
 int Solve_Rational_Poly_Equation(float rt);   //Temperature Calculator with PT100
+void Set_Message(char* msg, unsigned char leng);
+
 
 #endif	/* MAIN_H */
