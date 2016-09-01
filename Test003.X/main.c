@@ -137,7 +137,7 @@ void Button_Check(){
         switch(myMode){
             case NORMAL_VIEW:
                 dpMode = STR_MODE;
-                Set_Message("NORM",4);
+                Set_Message("SET",3);
                 Delay_ms(300);
                 Set_Message("MODE",4);
                 Delay_ms(500);
