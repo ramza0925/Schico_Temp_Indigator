@@ -240,7 +240,7 @@ void Temp_Check(){
     avgValue = (avgValue-maxV-minV)/(loopCountA-2);
     avgValue = avgValue+(0.00004f*pow(avgValue,2)+0.0612f*avgValue+5.2644f);
     
-    vout = (avgValue * UNIT)/GAIN;
+    vout = avgValue * UNIT;
     rt = vout/CURRENT;
     //rt = 10000.0f*(vout/(3.3f-vout));
     
