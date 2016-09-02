@@ -62,6 +62,8 @@
 #include <xc.h>
 #include <math.h>
 
+#include "AD7705.h"
+
 #define FOSC        2000000                     //OSCILLATOR VALUE
 #define FCY         FOSC/2         
 #define TCY         1/FCY
