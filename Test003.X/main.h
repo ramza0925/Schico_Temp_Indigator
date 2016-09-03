@@ -135,13 +135,13 @@ enum dp_mode {
 const int DOT = 0x7fff;                         //FND Dot
 const int MINUS = 0xbf00;                       //FND MINUS
 
-const float RESOLUTION = 4096.0f;
+const float RESOLUTION = 65536.0f;
 const float CURRENT = 0.001f;                   //PT100ohm Current
-const float GAIN = 20000.0f/1200.0f;
+const float GAIN = 8;
 
 //Functions
-void Delay_us(unsigned char _dcnt);             //Make Delay micro seconds
-void Delay_ms(unsigned int cnt);                //Make Delay milli seconds
+extern void Delay_us(unsigned char _dcnt);             //Make Delay micro seconds
+extern void Delay_ms(unsigned int cnt);                //Make Delay milli seconds
 void Init();                                    //Initialize
 void OSC_Init();                                //Oscillator Intialize
 void Port_Init();                               //Port Initialize
@@ -158,6 +158,7 @@ void FND_Number_Display(int num, int dot);
 int Solve_Rational_Poly_Equation(float rt);   //Temperature Calculator with PT100
 void Set_Message(char* msg, unsigned char leng);
 float Get_ADC(unsigned int ch, unsigned int buffer);
+float Get_Temp_Data();
 
 
 #endif	/* MAIN_H */

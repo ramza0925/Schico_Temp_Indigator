@@ -41,7 +41,7 @@ void __attribute__((__interrupt__, __shadow__ ,auto_psv)) _T1Interrupt(void){
  *****************************************************************************/
 int main(void) {
     voltage_Total = 3.3f;
-    myMode = NORMAL_VIEW;
+    myMode = RRTD_VIEW;
     dpMode = NUM_MODE;
     Init();
     
@@ -57,7 +57,8 @@ void Init(){
     OSC_Init();
     Port_Init();
     Timer_Init();
-    ADC_Init();
+    adc_init();
+    //ADC_Init();
     Data_Init();
 }
 
@@ -84,7 +85,7 @@ void Port_Init(){
     PORTA = 0x0000;
     TRISB = 0x0000;
     PORTB = 0x0000;
-    TRISC = 0x0000;
+    TRISC = 0x0008;                 //0b0000000000001000
     PORTC = 0x0000;
 }
 
@@ -174,7 +175,7 @@ void Button_Check(){
             case NORMAL_VIEW:
                 break;
             case SETTING:
-                voltage_Total = (100.0f*RESOLUTION*CURRENT*GAIN)/Get_ADC(0x0001, ADC1BUF1);
+                voltage_Total = (100.0f*RESOLUTION*CURRENT*GAIN)/Get_Temp_Data();
                 dpMode = STR_MODE;
                 Set_Message("SAVE",4);
                 Delay_ms(500);
@@ -195,8 +196,9 @@ void Button_Check(){
 void Temp_Check(){
     float vout, rt, adc;
     
-    adc = Get_ADC(0x0001, ADC1BUF1);
-    adc_Value = adc_Value+(0.00004f*pow(adc_Value,2)+0.0612f*adc_Value+5.2644f);
+    //adc = Get_ADC(0x0001, ADC1BUF1);
+    adc = Get_Temp_Data();
+    //adc_Value = adc_Value+(0.00004f*pow(adc_Value,2)+0.0612f*adc_Value+5.2644f);
     
     vout = (adc * voltage_Total/RESOLUTION)/GAIN;
     
@@ -314,53 +316,75 @@ void Set_Message(char* msg, unsigned char leng){
 }
 
 float Get_ADC(unsigned int ch, unsigned int buffer){
-    const char loopCountA = 12;
-    const char loopCountB = 12;
+    const unsigned char loopCount = 12;;
     
-    int loopA, loopB;                               //Loop Variable
-    float temp, maxV, minV, avgValue;           
-    float temp_arrayB[loopCountB];
-    float temp_arrayA[loopCountA];
-    
+    unsigned char loopA, loopB;                               //Loop Variable
+    unsigned int temp1, maxV1, minV1, avgValue1;
+    unsigned int temp2, maxV2, minV2, avgValue2;         
+
     //Channel Selection
     AD1CHS = ch;
     Delay_us(50);
     
-    avgValue = 0;
-    for(loopA = 0 ; loopA < loopCountA ; loopA++){
-        temp = 0;
-        for(loopB = 0 ; loopB < loopCountB ; loopB++){
+    temp1 = 0;
+    maxV1 = 0;
+    minV1 = 65535;
+    avgValue1 = 0;
+    for(loopA = 0 ; loopA < loopCount ; loopA++){
+        temp2 = 0;
+        maxV2 = 0;
+        minV2 = 65535;
+        avgValue2 = 0;
+        for(loopB = 0 ; loopB < loopCount ; loopB++){
             while(!AD1CON1bits.DONE);
-            temp_arrayB[loopB] = buffer;
-            temp += temp_arrayB[loopB];
+            temp2 = buffer;
+            if(temp2 > maxV2) maxV2 = temp2;
+            if(temp2 < minV2) minV2 = temp2;
+            avgValue2 += temp2;
             Delay_us(5);
         }
         
-        maxV = temp_arrayB[0];
-        minV = temp_arrayB[0];
-        for(loopB = 0; loopB < loopCountB ; loopB++){
-            if(maxV<temp_arrayB[loopB]) {
-                maxV = temp_arrayB[loopB];
-            }
-            if(minV>temp_arrayB[loopB]) {
-                minV = temp_arrayB[loopB];
-            }
-        }
-        //?? ? ??
-        temp_arrayA[loopA] = (temp-maxV-minV)/(loopCountB-2);
-        avgValue += temp_arrayA[loopA];
+        temp1 = (avgValue2 - maxV2 - minV2)/(loopCount-2);
+        if(temp1 > maxV1) maxV1 = temp1;
+        if(temp1 < minV1) minV1 = temp1;
+        avgValue1 += temp1;
     }
     
-    maxV = temp_arrayA[0];
-    minV = temp_arrayA[0];
-    for(loopA = 0 ; loopA < loopCountA ; loopA++){
-        if(maxV<temp_arrayA[loopA]) {
-            maxV = temp_arrayA[loopA];
+    temp2 = (avgValue1 - maxV1 - minV1)/(loopCount-2);
+    
+    return temp2;
+}
+
+float Get_Temp_Data(){
+    const unsigned char loopCount = 12;
+    
+    unsigned char loopA, loopB;                               //Loop Variable
+    unsigned int temp1, maxV1, minV1, avgValue1;
+    unsigned int temp2, maxV2, minV2, avgValue2; 
+    
+    temp1 = 0;
+    maxV1 = 0;
+    minV1 = 65535;
+    avgValue1 = 0;
+    for(loopA = 0 ; loopA < loopCount ; loopA++){
+        temp2 = 0;
+        maxV2 = 0;
+        minV2 = 65535;
+        avgValue2 = 0;
+        
+        for(loopB = 0 ; loopB < loopCount ; loopB++){
+            temp2 = read_adc_value(0);
+            if(temp2 > maxV2) maxV2 = temp2;
+            if(temp2 < minV2) minV2 = temp2;
+            avgValue2 += temp2;
         }
-        if(minV>temp_arrayA[loopA]) {
-            minV = temp_arrayA[loopA];
-        }
+        temp1 = (avgValue2 - maxV2 - minV2)/(loopCount-2);
+        if(temp1 > maxV1) maxV1 = temp1;
+        if(temp1 < minV1) minV1 = temp1;
+        avgValue1 += temp1;
     }
-    avgValue = (avgValue-maxV-minV)/(loopCountA-2);
-    return avgValue;
+    
+    temp2 = (avgValue1 - maxV1 - minV1)/(loopCount-2);
+    
+    return (float)temp2;
 }
