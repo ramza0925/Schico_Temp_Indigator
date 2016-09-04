@@ -21,16 +21,16 @@
 #pragma config GSS0 = OFF               // General Segment Code Protect (No Protection)
 
 // FOSCSEL
-#pragma config FNOSC = PRI              // Oscillator Select (Primary Oscillator (XT, HS, EC))
+#pragma config FNOSC = FRCDIV           // Oscillator Select (8MHz FRC oscillator With Postscaler (FRCDIV))
 #pragma config SOSCSRC = DIG            // SOSC Source Type (Digital Mode for use with external source)
 #pragma config LPRCSEL = HP             // LPRC Oscillator Power and Accuracy (High Power, High Accuracy Mode)
-#pragma config IESO = ON               // Internal External Switch Over bit (Internal External Switchover mode disabled (Two-speed Start-up disabled))
+#pragma config IESO = OFF               // Internal External Switch Over bit (Internal External Switchover mode disabled (Two-speed Start-up disabled))
 
 // FOSC
-#pragma config POSCMOD = EC             // Primary Oscillator Configuration bits (External clock mode selected)
+#pragma config POSCMOD = NONE           // Primary Oscillator Configuration bits (Primary oscillator disabled)
 #pragma config OSCIOFNC = OFF           // CLKO Enable Configuration bit (CLKO output disabled)
 #pragma config POSCFREQ = MS            // Primary Oscillator Frequency Range Configuration bits (Primary oscillator/external clock input frequency between 100kHz and 8MHz)
-#pragma config SOSCSEL = SOSCHP         // SOSC Power Selection Configuration bits (Secondary Oscillator configured for high-power operation)
+#pragma config SOSCSEL = SOSCLP         // SOSC Power Selection Configuration bits (Secondary Oscillator configured for low-power operation)
 #pragma config FCKSM = CSDCMD           // Clock Switching and Monitor Selection (Both Clock Switching and Fail-safe Clock Monitor are disabled)
 
 // FWDT

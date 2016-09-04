@@ -72,10 +72,11 @@ void OSC_Init(){
     //SOSCDRV(2):   0
     //SOSCEN(1):    0
     //OSWEN(0):     0
-    OSCCONbits.COSC     = 2;        //Primary OSC Use
-    OSCCONbits.NOSC     = 2;        //Primary OSC Use
-    OSCCONbits.CLKLOCK  = 1;        //Clock and PPL Selections are Lock
-    
+    //OSCCONbits.COSC     = 0b010;        //Primary OSC Use
+    //OSCCONbits.NOSC     = 0b010;        //Primary OSC Use
+    //OSCCONbits.CLKLOCK  = 1;        //Clock and PPL Selections are Lock
+    OSCCON = 0b0111011110000001;
+    CLKDIV = 0b0001001000000000;
 }
 
 //Port Initalize
@@ -220,12 +221,12 @@ void Temp_Check(){
 }
 
 //Make Delay us
-void Delay_us(unsigned char _dcnt) {
+extern void Delay_us(unsigned char _dcnt) {
     while(--_dcnt !=0);
 }
 
 //Make Delay ms
-void Delay_ms(unsigned int cnt){
+extern void Delay_ms(unsigned int cnt){
     unsigned char i;
     do{
         i = 1;

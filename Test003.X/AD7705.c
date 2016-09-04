@@ -55,7 +55,7 @@ long int read_adc_word(){
 //read an adc  value from the specified channel 
 unsigned long int read_adc_value(unsigned char ch){
     long int value; 
-    while(!ADC_DRDY);
+    //while(!ADC_DRDY);
     
     if(ch) 
         // write_adc_byte(0x38);//communications register set to read of data register of channel 1  False! 
@@ -65,7 +65,7 @@ unsigned long int read_adc_value(unsigned char ch){
         write_adc_byte(0x38);//communications register set to read of data 
     value=read_adc_word();  
     
-    while (ADC_DRDY); // but this line has no utility! 
+    //while (ADC_DRDY); // but this line has no utility! 
     
     return value; 
 }
