@@ -7,39 +7,26 @@
 
 #include "main.h"
                             
-volatile int tmp_Value ;                            //Temperature Value
-//float curr_Value;                         //current Value
-int correction_Value; 
+volatile int tmp_Value = 0;                            //Temperature Value
+volatile int rrtd_Value = 0;
+char* message;
+unsigned char length;
 
+//float curr_Value;                                 //current Value
+
+unsigned char minusFlag = 0;
+unsigned int APs[4] = {FND_AP1, FND_AP2, FND_AP3, FND_AP4}; 
 
 //TIMER1 Interrupt
 void __attribute__((__interrupt__, __shadow__ ,auto_psv)) _T1Interrupt(void){
-    int num = tmp_Value;
-    
-    if(num < 0) {
-        num = num * -1;
-        PORTB = MINUS | FND_AP1;
-        Delay_ms(4);
-        PORTB = 0xfff0;
+    if(myMode == NORMAL_VIEW && dpMode == NUM_MODE){
+        FND_Number_Display(tmp_Value);
     }
-    if(num>=1000){
-        PORTB = fnd_character[num/1000] | FND_AP1;
-        Delay_ms(4);
-        PORTB = 0xfff0;
+    else if(myMode == RRTD_VIEW && dpMode == NUM_MODE){
+        FND_Number_Display(rrtd_Value);
     }
-    if(num>=100){
-        PORTB = fnd_character[(num%1000)/100] | FND_AP2;
-        Delay_ms(4);
-        PORTB = 0xfff0;
-    }
-    PORTB = (fnd_character[(num%100)/10] | FND_AP3) & DOT;
-    Delay_ms(4);
-    PORTB = 0xfff0;
-    PORTB = fnd_character[num%10] | FND_AP4;
-    Delay_ms(4);
-    PORTB = 0xfff0;
-    Delay_ms(1);
-    
+    else
+        FND_String_Display(message, length);
     IFS0bits.T1IF = 0;              //Reset Timer1 interrupt flag and Return from ISR
 }
 
@@ -48,37 +35,15 @@ void __attribute__((__interrupt__, __shadow__ ,auto_psv)) _T1Interrupt(void){
  * MAIN
  *****************************************************************************/
 int main(void) {
-    tmp_Value = 0;
     Init();
+    myMode = NORMAL_VIEW;
+    dpMode = NUM_MODE;
     
-//    while(1){
-//        tmp_Value ++;
-//        if(tmp_Value == 9999) tmp_Value = 0;
-//        Delay_ms(300);
-//    }
     while(1){
-        //Button_Check();     //TBD
+        Button_Check();     
         Temp_Check();
-        //Current_Check();
-        //Current_Control();
     }
     return 0;
-}
-
-//Make Delay us
-void Delay_us(unsigned char _dcnt) {
-    while(--_dcnt !=0);
-}
-
-//Make Delay ms
-void Delay_ms(unsigned int cnt){
-    unsigned char i;
-    do{
-        i = 1;
-        do{
-            Delay_us(250);
-        }while(--i);
-    }while(--cnt);
 }
 
 //Initialize
@@ -109,7 +74,7 @@ void OSC_Init(){
 //Port Initalize
 void Port_Init(){
     //PORT Initialize
-    TRISA = 0x0F03;                 //0b111100000011
+    TRISA = 0x0F0F;                 //0b0000111100001111
     PORTA = 0x0000;
     TRISB = 0x0000;
     PORTB = 0x0000;
@@ -167,7 +132,41 @@ void Data_Init(){
 
 //Button Check
 void Button_Check(){
-   //TODO TBD
+    if(MODE == 0){
+        Delay_ms(100);
+        switch(myMode){
+            case NORMAL_VIEW:
+                dpMode = STR_MODE;
+                Set_Message("SET",3);
+                Delay_ms(300);
+                Set_Message("MODE",4);
+                Delay_ms(500);
+                Set_Message("SET",3);
+                myMode = SETTING;
+                break;
+            case SETTING:
+                Set_Message("NOT",3);
+                Delay_ms(300);
+                Set_Message("SAVE",4);
+                Delay_ms(500);
+                Set_Message("RRTD",4);
+                Delay_ms(300);
+                Set_Message("MODE",4);
+                Delay_ms(500);
+                myMode = RRTD_VIEW;
+                dpMode = NUM_MODE;
+                break;
+            case RRTD_VIEW:
+                dpMode = STR_MODE;
+                Set_Message("NORM",4);
+                Delay_ms(300);
+                Set_Message("MODE",4);
+                Delay_ms(500);
+                myMode = NORMAL_VIEW;
+                dpMode = NUM_MODE;
+                break;
+        }
+    }
 }
 
 //Temperature Check
@@ -222,25 +221,40 @@ void Temp_Check(){
     avgValue = (avgValue-maxV-minV)/(loopCountA-2);
     avgValue = avgValue+(0.00004f*pow(avgValue,2)+0.0612f*avgValue+5.2644f);
     
-    vout = (avgValue * UNIT)/GAIN;
+    vout = avgValue * UNIT;
     rt = vout/CURRENT;
-    //tmp_Value = avgValue;
-    tmp_Value = Solve_Rational_Poly_Equation(rt);
-
-    Delay_ms(700);
+    
+    switch(myMode){
+        case RRTD_VIEW:
+            rrtd_Value = (int)(rt*10)%10000;
+            break;
+        case NORMAL_VIEW:
+            tmp_Value = Solve_Rational_Poly_Equation(rt);
+            break;
+        case SETTING:
+            break;
+    }
+    Delay_ms(300);
     
 }
 
-//Current Check
-void Current_Check(){
-   //TODO
+//Make Delay us
+void Delay_us(unsigned char _dcnt) {
+    while(--_dcnt !=0);
 }
 
-//Current Controll
-void Current_Control(){
-   //TODO
+//Make Delay ms
+void Delay_ms(unsigned int cnt){
+    unsigned char i;
+    do{
+        i = 1;
+        do{
+            Delay_us(250);
+        }while(--i);
+    }while(--cnt);
 }
 
+//Calculate Temperature
 int Solve_Rational_Poly_Equation(float rt){
     float result = 0;
     
@@ -255,26 +269,55 @@ int Solve_Rational_Poly_Equation(float rt){
     
     result = C0 + ((C1*rt+C2*pow(rt,2)+C3*pow(rt,3)+C4*pow(rt,4))/(1+C5*rt+C6*pow(rt,2)+C7*pow(rt,3)));
     
+    if(result > 0) minusFlag = 0;
+    else minusFlag = 1;
+    
     return (int)(result*10)%10000;
 }
 
-unsigned int eeRead(unsigned int address){
-    while(NVMCONbits.WR);       // wait for any last write to complete
-    TBLPAG = 0x7f;              // eprom is a t 0x7ffe00
-    return __builtin_tblrdl(0xFE00+address);
+//FND Display Characteristic
+//Characters will only enter capital letters.
+void FND_String_Display(char* string, unsigned char length){
+    unsigned char i;
+    
+    for(i=0; i < length; i++){
+        if(string[length-1-i] > 64)
+            PORTB = fnd_character[string[length-1-i]-55] | APs[3-i];
+        else
+            PORTB = fnd_character[string[length-1-i]-48] | APs[3-i];
+        Delay_ms(4);
+        PORTB = 0xfff0;
+    }
+    Delay_ms(1);
 }
- 
-void eeWrite(unsigned int address, unsigned int data){
-    while(NVMCONbits.WR);       // wait for last write to complete
-    NVMCON = 0x4058;            // Set up NVMCON to erase one word of data EEPROM
-    TBLPAG = 0x7f;              // eprom is a t 0x7ffe00
-    __builtin_tblwtl(0xFE00+address, 0xffff);
-    asm volatile ("disi #5");
-    __builtin_write_NVM();       // Issue Unlock Sequence & Start Write Cycle 
- 
-    while(NVMCONbits.WR);       // wait for errase to complete
-    NVMCON = 0x4004;            // Set up NVMCON to write one word of data EEPROM
-    __builtin_tblwtl(0xFE00+address, data);   // Write EEPROM data to write latch
-    asm volatile ("disi #5");
-    __builtin_write_NVM();     
+
+void FND_Number_Display(int num){    
+    if(num < 0) {
+        num = num * -1;
+        PORTB = MINUS | FND_AP1;
+        Delay_ms(4);
+        PORTB = 0xfff0;
+    }
+    if(num>=1000){
+        PORTB = fnd_character[num/1000] | FND_AP1;
+        Delay_ms(4);
+        PORTB = 0xfff0;
+    }
+    if(num>=100){
+        PORTB = fnd_character[(num%1000)/100] | FND_AP2;
+        Delay_ms(4);
+        PORTB = 0xfff0;
+    }
+    PORTB = (fnd_character[(num%100)/10] | FND_AP3) & DOT;
+    Delay_ms(4);
+    PORTB = 0xfff0;
+    PORTB = fnd_character[num%10] | FND_AP4;
+    Delay_ms(4);
+    PORTB = 0xfff0;
+    Delay_ms(1);
+}
+
+void Set_Message(char* msg, unsigned char leng){
+    message = msg;
+    length = leng;
 }
