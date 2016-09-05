@@ -6,6 +6,8 @@
  */
 
 #include "main.h"
+
+const unsigned char DP_DELAY = 3;
                             
 volatile int tmp_Value = 0;                            //Temperature Value
 volatile int rrtd_Value = 0;
@@ -14,8 +16,6 @@ char* message ="";
 unsigned char length = 0;
 
 float voltage_Total = 0.0f;
-
-//float curr_Value;                                 //current Value
 
 unsigned char minusFlag = 0;
 unsigned int APs[4] = {FND_AP1, FND_AP2, FND_AP3, FND_AP4}; 
@@ -41,7 +41,7 @@ void __attribute__((__interrupt__, __shadow__ ,auto_psv)) _T1Interrupt(void){
  *****************************************************************************/
 int main(void) {
     voltage_Total = 3.3f;
-    myMode = RRTD_VIEW;
+    myMode = NORMAL_VIEW;
     dpMode = NUM_MODE;
     Init();
     
@@ -64,19 +64,19 @@ void Init(){
 
 //OSCillator Initialize
 void OSC_Init(){
-    //COSC(12~14):  010
-    //NOSC(8~10):   010
-    //CLKLOCK(7):   1
-    //LOCK(5):      0
-    //CF(3):        0
-    //SOSCDRV(2):   0
-    //SOSCEN(1):    0
-    //OSWEN(0):     0
-    //OSCCONbits.COSC     = 0b010;        //Primary OSC Use
-    //OSCCONbits.NOSC     = 0b010;        //Primary OSC Use
-    //OSCCONbits.CLKLOCK  = 1;        //Clock and PPL Selections are Lock
-    OSCCON = 0b0111011110000001;
-    CLKDIV = 0b0001001000000000;
+    OSCCONbits.COSC = 7;        //
+    OSCCONbits.NOSC = 7;
+    OSCCONbits.CLKLOCK = 1;
+    OSCCONbits.LOCK = 0;
+    OSCCONbits.CF = 0;
+    OSCCONbits.SOSCDRV = 0;
+    OSCCONbits.SOSCEN = 0;
+    OSCCONbits.OSWEN = 0;
+    
+    CLKDIVbits.ROI = 0;
+    CLKDIVbits.DOZE = 0;
+    CLKDIVbits.DOZEN = 0;
+    CLKDIVbits.RCDIV = 2;
 }
 
 //Port Initalize
@@ -96,7 +96,7 @@ void Timer_Init(){
     T1CONbits.TCS   = 0;            //Inner Clock use
     T1CONbits.TCKPS = 0;            //1:1 Prescale
     TMR1            = 0x0000;       //Clear contents of the timer register
-    PR1             = 0x8888;       //Load the Period register with the value 0xffff
+    PR1             = 0x3333;       //Load the Period register with the value 0xffff
     IPC0bits.T1IP   = 0x07;         //Setup Timer1 interrupt for desired priority level(1)
     IFS0bits.T1IF   = 0;            //Clear the Timer1 interrupt status flag
     IEC0bits.T1IE   = 1;            //Enable Timer1 Intrrupts
@@ -221,18 +221,20 @@ void Temp_Check(){
 }
 
 //Make Delay us
-extern void Delay_us(unsigned char _dcnt) {
-    while(--_dcnt !=0);
+extern void Delay_10us(unsigned char _dcnt) {
+    register unsigned char i;
+    for(i = 0; i<_dcnt; i++){   //4cycle
+        Nop();                  //2cycle
+        Nop();                  //2cycle
+        //Nop();
+    }
+    
 }
 
 //Make Delay ms
 extern void Delay_ms(unsigned int cnt){
-    unsigned char i;
     do{
-        i = 1;
-        do{
-            Delay_us(250);
-        }while(--i);
+        Delay_10us(100);
     }while(--cnt);
 }
 
@@ -267,7 +269,7 @@ void FND_String_Display(char* string, unsigned char length){
             PORTB = fnd_character[string[length-1-i]-55] | APs[3-i];
         else
             PORTB = fnd_character[string[length-1-i]-48] | APs[3-i];
-        Delay_ms(4);
+        Delay_ms(DP_DELAY);
         PORTB = 0xfff0;
     }
     Delay_ms(1);
@@ -277,7 +279,7 @@ void FND_Number_Display(int num, int dot){
     if(num < 0) {
         num = num * -1;
         PORTB = MINUS | FND_AP1;
-        Delay_ms(4);
+        Delay_ms(DP_DELAY);
         PORTB = 0xfff0;
     }
     if(num>=1000){
@@ -285,7 +287,7 @@ void FND_Number_Display(int num, int dot){
             PORTB = (fnd_character[num/1000] | FND_AP1) & DOT;
         else
             PORTB = fnd_character[num/1000] | FND_AP1;
-        Delay_ms(4);
+        Delay_ms(DP_DELAY);
         PORTB = 0xfff0;
     }
     if(num>=100){
@@ -293,20 +295,20 @@ void FND_Number_Display(int num, int dot){
             PORTB = (fnd_character[(num%1000)/100] | FND_AP2) & DOT;
         else
             PORTB = fnd_character[(num%1000)/100] | FND_AP2;
-        Delay_ms(4);
+        Delay_ms(DP_DELAY);
         PORTB = 0xfff0;
     }
     if(dot ==2 )
         PORTB = (fnd_character[(num%100)/10] | FND_AP3) & DOT;
     else
         PORTB = (fnd_character[(num%100)/10] | FND_AP3);
-    Delay_ms(4);
+    Delay_ms(DP_DELAY);
     PORTB = 0xfff0;
     if(dot == 1)
         PORTB = (fnd_character[num%10] | FND_AP4) & DOT;
     else
         PORTB = fnd_character[num%10] | FND_AP4;
-    Delay_ms(4);
+    Delay_ms(DP_DELAY);
     PORTB = 0xfff0;
     Delay_ms(1);
 }
@@ -325,7 +327,7 @@ float Get_ADC(unsigned int ch, unsigned int buffer){
 
     //Channel Selection
     AD1CHS = ch;
-    Delay_us(50);
+    Delay_10us(5);
     
     temp1 = 0;
     maxV1 = 0;
@@ -342,7 +344,7 @@ float Get_ADC(unsigned int ch, unsigned int buffer){
             if(temp2 > maxV2) maxV2 = temp2;
             if(temp2 < minV2) minV2 = temp2;
             avgValue2 += temp2;
-            Delay_us(5);
+            Delay_10us(1);
         }
         
         temp1 = (avgValue2 - maxV2 - minV2)/(loopCount-2);

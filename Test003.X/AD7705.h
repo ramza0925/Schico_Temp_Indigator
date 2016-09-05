@@ -30,7 +30,7 @@
 #define ADC_DRDY  PORTCbits.RC2 
 #define ADC_DO    PORTCbits.RC3 
 #define ADC_DI    PORTCbits.RC4  
-#define ADC_RESET PORTCbits.RC0 
+#define ADC_RESET PORTCbits.RC8 
 #define ADC_CS    PORTCbits.RC1 
 #define ADC_CLK   PORTCbits.RC5 
 //---------------------------------------------------

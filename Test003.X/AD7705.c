@@ -2,10 +2,10 @@
 
 
 void adc_init() { 
-   ADC_RESET = LOW; 
-   ADC_CLK = HIGH;
-   ADC_CS = HIGH;
-   ADC_RESET = HIGH;
+   ADC_RESET = 0; 
+   ADC_CLK = 1;
+   ADC_CS = 1;
+   ADC_RESET = 1;
    setup_adc_device(ADC_MASTERCLK_ENABLE,ADC_CLKDIV_ON,ADC_20, ADC_NORMAL,ADC_GAIN_32,ADC_BIPOLAR,ADC_BUFFER_OFF,ADC_FSYNC_START); 
 } 
 
@@ -28,10 +28,10 @@ void write_adc_byte(char data){
    
    ADC_CS = LOW;
    for(i=1;i<=8;++i) { 
-       ADC_CLK = LOW;
+       ADC_CLK = 0;
        if ((data & 0x80) == 0) ADC_DI = 1;
        else ADC_DI = 0;
-       ADC_CLK = HIGH;
+       ADC_CLK = 1;
        data <<= 1;
    } 
    ADC_CS = HIGH; 
@@ -43,12 +43,12 @@ long int read_adc_word(){
 
    ADC_CS = LOW; 
    for(i=1;i<=16;++i) { 
-      ADC_CLK = LOW; 
-      ADC_CLK = HIGH; 
+      ADC_CLK = 0; 
+      ADC_CLK = 1; 
       // TODO shift_left(&data,2,input(ADC_DO)); 
       if (ADC_DO) data |= 0x01;
    } 
-   ADC_CS = HIGH; 
+   ADC_CS = 1; 
    return data; 
 } 
 
