@@ -59,7 +59,8 @@ void Init(){
     Timer_Init();
     adc_init();
     //ADC_Init();
-    Data_Init();
+    Delay_ms(1000);
+    //Data_Init();
 }
 
 //OSCillator Initialize
@@ -86,8 +87,8 @@ void Port_Init(){
     PORTA = 0x0000;
     TRISB = 0x0000;
     PORTB = 0x0000;
-    TRISC = 0x0008;                 //0b0000000000001000
-    PORTC = 0x0000;
+    TRISC = 0x000C;                 //0b0000000000001100
+    PORTC = 0x0123;
 }
 
 //Timer1 Initerize
@@ -221,7 +222,7 @@ void Temp_Check(){
 }
 
 //Make Delay us
-extern void Delay_10us(unsigned char _dcnt) {
+void Delay_10us(unsigned char _dcnt) {
     register unsigned char i;
     for(i = 0; i<_dcnt; i++){   //4cycle
         Nop();                  //2cycle
@@ -232,7 +233,7 @@ extern void Delay_10us(unsigned char _dcnt) {
 }
 
 //Make Delay ms
-extern void Delay_ms(unsigned int cnt){
+void Delay_ms(unsigned int cnt){
     do{
         Delay_10us(100);
     }while(--cnt);
